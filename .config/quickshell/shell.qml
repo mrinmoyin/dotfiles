@@ -7,6 +7,7 @@ import "./modules/clipboard"
 import "./modules/help"
 import "./modules/osd"
 import "./modules/mediaplayer"
+import "./modules/wallpaperselector"
 import "./modules"
 
 ShellRoot {
@@ -24,4 +25,5 @@ ShellRoot {
     HelpWindow {}
     ClipboardWindow {}
     MediaPlayerWindow {}
+    WallpaperSelectorWindow {}
 }

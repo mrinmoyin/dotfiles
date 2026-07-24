@@ -48,12 +48,21 @@ Scope {
         }
     }
 
+    // GlobalShortcut {
+    //     name: "help"
+    //     description: "Toggle keybinds help"
+    //
+    //     onPressed: {
+    //         ShellState.help = !ShellState.help;
+    //     }
+    // }
+
     GlobalShortcut {
         name: "help"
-        description: "Toggle keybinds help"
+        description: "Toggle wallpaper selector"
 
         onPressed: {
-            ShellState.help = !ShellState.help;
+            ShellState.wallpaper = !ShellState.wallpaper;
         }
     }
 

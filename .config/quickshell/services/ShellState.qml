@@ -10,6 +10,7 @@ Singleton {
     property bool mediaplayer: false
     property bool clipboard: false
     property bool help: false
+    property bool wallpaper: false
 
     function toggleOsd(): void {
         if (!controlcenter)
@@ -35,5 +36,8 @@ Singleton {
     }
     function toggleHelp(): void {
         help = !help;
+    }
+    function toggleWallpaper(): void {
+        wallpaper = !wallpaper;
     }
 }

@@ -4,8 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
-
-// import Quickshell.Services.Networking
+import Quickshell.Networking
 
 Singleton {
     id: root
@@ -14,6 +13,8 @@ Singleton {
 
     readonly property real downBytesSec: rxBytes
     readonly property real upBytesSec: txBytes
+    readonly property list<NetworkDevice> devices: Networking.devices.values
+    onDevicesChanged: console.log("networks", JSON.stringify(devices))
 
     property int rxBytes: 0
     property int txBytes: 0

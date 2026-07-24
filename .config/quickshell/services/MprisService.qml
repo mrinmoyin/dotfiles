@@ -15,7 +15,6 @@ Singleton {
     readonly property MprisPlayer player: players.find(plyr => plyr.isPlaying === true) || players[0]
     readonly property int playerIndex: players.indexOf(player)
     property int lastPlayerIndex: 0
-    onPlayersChanged: console.log("player", JSON.stringify(player))
 
     // TODO seperate lyrics control for each player
     property bool lyricsEnabled: false
@@ -122,10 +121,10 @@ Singleton {
 
         stdout: StdioCollector {
             onStreamFinished: {
-                console.log(text);
+                // console.log(text);
                 const data = JSON.parse(text);
                 if (!data.syncedLyrics) {
-                    console.log("unalbe to fetch lyrics", lyricsProc.command);
+                    console.warn("unalbe to fetch lyrics", lyricsProc.command);
                     root.lyricsAvailable = false;
                     return;
                 }

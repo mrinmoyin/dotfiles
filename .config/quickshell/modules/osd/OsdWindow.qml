@@ -198,19 +198,19 @@ PanelWindow {
                             value: card.modelData.audio.volume
                             onMoved: card.modelData.audio.volume = value
                         }
-                        Slider {
-                            visible: !card.modelData.isSink
-                            orientation: Qt.Vertical
-                            Layout.fillHeight: true
-                            implicitWidth: parent.width
-                            icon: ""
-
-                            from: 0
-                            to: 1
-                            stepSize: 0.01
-                            value: card.modelData.audio.volume
-                            onMoved: card.modelData.audio.volume = value
-                        }
+                        // Slider {
+                        //     visible: !card.modelData.isSink
+                        //     orientation: Qt.Vertical
+                        //     Layout.fillHeight: true
+                        //     implicitWidth: parent.width
+                        //     icon: ""
+                        //
+                        //     from: 0
+                        //     to: 1
+                        //     stepSize: 0.01
+                        //     value: card.modelData.audio.volume
+                        //     onMoved: card.modelData.audio.volume = value
+                        // }
                     }
                 }
             }
