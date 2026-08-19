@@ -23,6 +23,8 @@ Scope {
         onPressed: {
             if (ShellState.osd)
                 ShellState.osd = false;
+            if (NotificationService.onScreenNotificationsModel.count)
+                NotificationService.onScreenNotificationsModel.clear();
             ShellState.controlcenter = !ShellState.controlcenter;
         }
     }
@@ -48,12 +50,33 @@ Scope {
         }
     }
 
+    // GlobalShortcut {
+    //     name: "help"
+    //     description: "Toggle keybinds help"
+    //
+    //     onPressed: {
+    //         ShellState.help = !ShellState.help;
+    //     }
+    // }
+
     GlobalShortcut {
         name: "help"
-        description: "Toggle keybinds help"
+        description: "Toggle wallpaper selector"
 
         onPressed: {
-            ShellState.help = !ShellState.help;
+            // ShellState.help = !ShellState.help;
+            // ShellState.wallpaper = !ShellState.wallpaper;
+            // ShellState.logout = !ShellState.logout;
+            ShellState.mpd = !ShellState.mpd;
+        }
+    }
+
+    GlobalShortcut {
+        name: "logout"
+        description: "Toggle logout menu"
+
+        onPressed: {
+            ShellState.logout = !ShellState.logout;
         }
     }
 

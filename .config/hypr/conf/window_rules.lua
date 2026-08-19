@@ -17,6 +17,11 @@ hl.window_rule({
     float = true,
 })
 hl.window_rule({
+    name = "spotify-float",
+    match = { class = "Spotify" },
+    float = true,
+})
+hl.window_rule({
     name = "spotube-float",
     match = { class = "spotube" },
     float = true,
@@ -58,4 +63,26 @@ hl.window_rule({
     name = "qtcreator-waiting-float",
     match = { title = "^(Waiting for Applications to Stop — Qt Creator)(.*)$" },
     float = true,
+})
+hl.window_rule({
+    name = "blender-fullscreen",
+    -- match = { class = "blender", title = "(Unsaved) - Blender .*" },
+    -- match = { title = "(Unsaved) - Blender 5.0.1" },
+    match = { class = "blender" },
+    fullscreen = true
+})
+-- hl.window_rule({
+--     name = "blender-float",
+--     match = { class = "blender" },
+--     float = true,
+-- })
+hl.window_rule({
+    name = "freecad-fullscreen",
+    match = { class = "org.freecad.FreeCAD", title = "FreeCAD 1.1.1" },
+    fullscreen = true
+})
+hl.window_rule({
+    name = "freecad-popups-float",
+    match = { class = "org.freecad.FreeCAD" },
+    float = true
 })

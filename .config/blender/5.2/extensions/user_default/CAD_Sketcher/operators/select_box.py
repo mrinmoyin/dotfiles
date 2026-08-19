@@ -1,0 +1,135 @@
+import bpy, gpu
+from bpy.types import Operator, Context, Event
+from bpy.utils import register_classes_factory
+from mathutils import Vector
+from gpu_extras.batch import batch_for_shader
+
+from ..drawing import selection
+from ..declarations import Operators
+from ..utilities.view import refresh
+from ..utilities.select import mode_property, deselect_all
+from ..shaders import Shaders
+
+
+def get_start_dist(value1, value2, invert: bool = False):
+    values = [value1, value2]
+    values.sort(reverse=invert)
+    start = values[0]
+    return int(start), int(abs(value2 - value1))
+
+
+def draw_callback_px(self, context):
+    """Draw selection box with appropriate shader based on GPU backend."""
+    # Simple backend detection
+    try:
+        backend_type = gpu.platform.backend_type_get()
+        is_vulkan_metal = backend_type in ('VULKAN', 'METAL')
+    except:
+        is_vulkan_metal = False
+
+    # Use appropriate shader
+    if is_vulkan_metal:
+        shader = gpu.shader.from_builtin("UNIFORM_COLOR")
+    else:
+        shader = Shaders.uniform_color_line_2d()
+
+    gpu.state.blend_set("ALPHA")
+
+    start = self.start_coords
+    end = self.mouse_pos
+
+    box_path = (start, (end.x, start.y), end, (start.x, end.y), start)
+    batch = batch_for_shader(shader, "LINE_STRIP", {"pos": box_path})
+    shader.bind()
+    shader.uniform_float("color", (0.0, 0.0, 0.0, 0.5))
+
+    # Set line width uniforms for custom shader only
+    if not is_vulkan_metal:
+        try:
+            shader.uniform_float("lineWidth", 2.0)
+        except:
+            pass
+
+    gpu.state.line_width_set(2.0)
+    batch.draw(shader)
+
+    # Restore OpenGL defaults
+    gpu.state.line_width_set(1.0)
+    gpu.state.blend_set("NONE")
+
+
+class View3D_OT_slvs_select_box(Operator):
+    """Select entities by drawing a box"""
+
+    bl_idname = Operators.SelectBox
+    bl_label = "Box Select"
+    bl_options = {"UNDO"}
+
+    mode: mode_property
+    _handle = None
+
+    def invoke(self, context: Context, event):
+        self.start_coords = Vector((event.mouse_region_x, event.mouse_region_y))
+        self.mouse_pos = self.start_coords
+
+        context.window.cursor_modal_set("CROSSHAIR")
+        context.window_manager.modal_handler_add(self)
+
+        args = (self, context)
+        self._handle = bpy.types.SpaceView3D.draw_handler_add(
+            draw_callback_px, args, "WINDOW", "POST_PIXEL"
+        )
+        return {"RUNNING_MODAL"}
+
+    def main(self, context: Context):
+        if self.start_coords == self.end_coords:
+            return False
+
+        from ..drawing import picking
+        curve_ids = picking.pick_box(context, self.start_coords, self.end_coords)
+
+        mode = self.mode
+        if mode == "SET":
+            deselect_all(context)
+
+        for cid in curve_ids:
+            if mode == "TOGGLE":
+                if cid in selection.selected:
+                    selection.selected.remove(cid)
+                else:
+                    selection.selected.append(cid)
+            elif mode == "SUBTRACT":
+                if cid in selection.selected:
+                    selection.selected.remove(cid)
+            else:
+                if cid not in selection.selected:
+                    selection.selected.append(cid)
+
+        refresh(context)
+        return True
+
+    def modal(self, context: Context, event: Event):
+        if event.type in ("RIGHTMOUSE", "ESC"):
+            return self.end(context, False)
+
+        if event.type == "MOUSEMOVE":
+            context.area.tag_redraw()
+            self.mouse_pos = Vector((event.mouse_region_x, event.mouse_region_y))
+
+        if event.type == "LEFTMOUSE":
+            self.end_coords = Vector((event.mouse_region_x, event.mouse_region_y))
+            return self.end(context, self.main(context))
+        return {"RUNNING_MODAL"}
+
+    def end(self, context, succeede):
+        context.window.cursor_modal_restore()
+
+        if self._handle is not None:
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle, "WINDOW")
+
+        retval = {"FINISHED"} if succeede else {"CANCELLED"}
+        context.area.tag_redraw()
+        return retval
+
+
+register, unregister = register_classes_factory((View3D_OT_slvs_select_box,))

@@ -1,0 +1,44 @@
+site_name: CAD Sketcher
+docs_dir: content
+
+theme:
+  name: material
+
+nav:
+    - index.md
+    - installation.md
+    - getting_started.md
+    - user_interface.md
+    - tools.md
+    - entities.md
+    - constraints.md
+    - solver.md
+    - integration.md
+    - interaction_system.md
+    - advanced.md
+    - code_docs.md
+    - development.md
+    - reference.md
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+        handlers:
+          python:
+            options:
+              members: false
+              show_source: false
+              show_root_heading: true
+              show_bases: false
+              show_root_full_path: false
+              show_if_no_docstring: true
+              show_signature_annotations: false
+
+markdown_extensions:
+    - lightgallery
+    - attr_list
+    - pymdownx.emoji
+    - pymdownx.superfences
+    - pymdownx.tabbed:
+        alternate_style: true

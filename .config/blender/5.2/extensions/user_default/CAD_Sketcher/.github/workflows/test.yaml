@@ -1,0 +1,73 @@
+name: test
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  versions:
+    # Derive the Blender versions to test from the manifest so the minimal
+    # supported version stays the single source of truth (no CI drift).
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: detect
+        name: Detect Blender versions to test
+        run: |
+          # Lower bound: minimal supported version, read from
+          # blender_manifest.toml. Strip the patch component ("4.3.0" -> "4.3")
+          # so setup-blender resolves it to the newest available 4.3.x.
+          min=$(grep -oP 'blender_version_min\s*=\s*"\K[0-9]+\.[0-9]+' blender_manifest.toml)
+          if [ -z "$min" ]; then
+            echo "::error::Could not parse blender_version_min from blender_manifest.toml" >&2
+            exit 1
+          fi
+          # Upper bound: the literal "latest", which setup-blender resolves to
+          # the newest non-beta release on the Blender mirror at install time.
+          # Nothing is hardcoded — min tracks the manifest, max tracks releases.
+          matrix="[\"$min\", \"latest\"]"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "Testing Blender versions: $matrix"
+
+  test-extension:
+    needs: versions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        blender-version: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    name: test-extension (blender ${{ matrix.blender-version }})
+    steps:
+      - uses: moguri/setup-blender@v1
+        with:
+          blender-version: ${{ matrix.blender-version }}
+
+      - run: blender --version
+
+      - name: Checkout Addon
+        uses: actions/checkout@v4
+        with:
+          path: CAD_Sketcher
+
+      - name: Validate Extension
+        run: blender --background --command extension validate
+        working-directory: ./CAD_Sketcher
+
+      - name: Build Extension
+        run: blender --background --command extension build --output-filepath ./CAD_Sketcher.zip
+        working-directory: ./CAD_Sketcher
+
+      - name: Install Extension
+        run: blender --background --command extension install-file --repo user_default --enable ./CAD_Sketcher.zip
+        working-directory: ./CAD_Sketcher
+
+      - name: Run Tests
+        # Runs the FULL suite against the installed extension and fails the job
+        # on any test failure (the old slvs_test invocation swallowed both).
+        env:
+          CAD_SKETCHER_SRC: ${{ github.workspace }}/CAD_Sketcher
+        run: blender --background --python ./scripts/ci_run_tests.py
+        working-directory: ./CAD_Sketcher

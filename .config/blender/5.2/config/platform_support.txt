@@ -1,0 +1,1 @@
+{Intel/Mesa Intel(R) HD Graphics 4600 (HSW GT2)/4.6 (Core Profile) Mesa 26.1.4-arch1.1}=SUPPORTED

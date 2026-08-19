@@ -7,8 +7,6 @@ import Quickshell.Services.Notifications
 Singleton {
     id: root
 
-    property bool centerOpen: false
-
     readonly property ListModel onScreenNotificationsModel: ListModel {}
     readonly property ListModel trackedNotificationsModel: ListModel {}
     // readonly property list<Notification> onScreenNotifications: onScreenNotificationsModel
@@ -55,36 +53,16 @@ Singleton {
         bodyImagesSupported: true
 
         onNotification: n => {
-            // console.log(JSON.stringify(n));
+            console.log("Notification", JSON.stringify(n));
             // TODO inline reply support, launch app onclick and expire
             n.tracked = true;
-            // n.time = Date.now();
             n.time = new Date();
+            // n.time = Date.now();
             // n.time = Qt.formatDateTime(new Date(), "HH:mm");
             root.trackedNotificationsModel.insert(0, n);
             if (!ShellState.controlcenter) {
                 root.onScreenNotificationsModel.insert(0, n);
-                // root.onScreenNotificationsModel.insert(0, {
-                //     id: n.id,
-                //     summary: n.summary,
-                //     body: n.body,
-                //     appName: n.appName,
-                //     appIcon: n.appIcon,
-                //     urgency: n.urgency,
-                //     time: n.time
-                // });
             }
         }
     }
-
-    // GlobalShortcut {
-    //     name: "controls_center"
-    //     description: "Controls Center"
-    //
-    //     onPressed: {
-    //         root.centerOpen = !root.centerOpen;
-    //         if (root.centerOpen)
-    //             root.onScreenNotificationsModel.clear();
-    //     }
-    // }
 }

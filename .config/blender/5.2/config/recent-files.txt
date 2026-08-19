@@ -1,0 +1,7 @@
+/home/mrinmoy/namaste-blender/animation/01-keyframes.blend
+/home/mrinmoy/namaste-blender/05-spoon.blend
+/home/mrinmoy/namaste-blender/04-spoon.blend
+/home/mrinmoy/namaste-blender/03-spoon.blend
+/home/mrinmoy/namaste-blender/06-spoon.blend
+/home/mrinmoy/namaste-blender/02-spoon.blend
+/home/mrinmoy/namaste-blender/01.blend

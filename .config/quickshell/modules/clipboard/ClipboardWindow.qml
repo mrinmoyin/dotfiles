@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
@@ -64,8 +65,24 @@ PanelWindow {
         focus: true
 
         Keys.onEscapePressed: root.close()
-        Keys.onDownPressed: list.incrementCurrentIndex()
-        Keys.onUpPressed: list.decrementCurrentIndex()
+        // Keys.onDownPressed: list.incrementCurrentIndex()
+        // Keys.onUpPressed: list.decrementCurrentIndex()
+        Keys.onDownPressed: switch (list.currentIndex) {
+        case list.count - 1:
+            list.currentIndex = 0;
+            scrollable.ScrollBar.vertical.position = 0.0;
+            break;
+        default:
+            list.incrementCurrentIndex();
+        }
+        Keys.onUpPressed: switch (list.currentIndex) {
+        case 0:
+            list.currentIndex = list.count - 1;
+            scrollable.ScrollBar.vertical.position = 1.0 - scrollable.ScrollBar.vertical.size;
+            break;
+        default:
+            list.decrementCurrentIndex();
+        }
         Keys.onReturnPressed: {
             root.copy();
             root.close();
@@ -225,83 +242,97 @@ PanelWindow {
                 }
             }
 
-            ListView {
-                id: list
-                model: root.visibleEntries
+            ScrollView {
+                id: scrollable
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 clip: true
 
-                delegate: Rectangle {
-                    id: card
+                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                ScrollBar.horizontal.interactive: false
+                ScrollBar.vertical.interactive: true
 
-                    required property string modelData
-                    required property int index
+                ListView {
+                    id: list
+                    model: root.visibleEntries
+                    anchors.fill: parent
+                    // Layout.fillWidth: true
+                    // Layout.fillHeight: true
+                    clip: true
 
-                    width: list.width
-                    height: 60
-                    radius: 20
-                    color: list.currentIndex === index ? "#0fffffff" : "transparent"
+                    delegate: Rectangle {
+                        id: card
 
-                    RowLayout {
-                        anchors.fill: parent
-                        spacing: 0
+                        required property string modelData
+                        required property int index
 
-                        Item {
-                            Layout.fillHeight: true
-                            implicitWidth: height
-                            Layout.margins: 8
+                        width: list.width
+                        height: 60
+                        radius: 20
+                        color: list.currentIndex === index ? "#0fffffff" : "transparent"
 
-                            Rectangle {
-                                radius: 20
-                                color: "#0fffffff"
-                                anchors.fill: parent
+                        RowLayout {
+                            anchors.fill: parent
+                            spacing: 0
+
+                            Item {
+                                Layout.fillHeight: true
+                                implicitWidth: height
+                                Layout.margins: 8
+
+                                Rectangle {
+                                    radius: 20
+                                    color: "#0fffffff"
+                                    anchors.fill: parent
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "󰦨"
+                                        font.family: "Inter"
+                                        font.pixelSize: 20
+                                        font.weight: Font.DemiBold
+                                        color: "#ffffff"
+                                    }
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
 
                                 Text {
-                                    anchors.centerIn: parent
-                                    text: "󰦨"
+                                    Layout.fillWidth: true
+                                    text: card.modelData.split("\t")[1]
                                     font.family: "Inter"
-                                    font.pixelSize: 20
-                                    font.weight: Font.DemiBold
+                                    font.pixelSize: 16
+                                    font.weight: Font.Medium
                                     color: "#ffffff"
+                                    elide: Text.ElideRight
                                 }
                             }
                         }
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: card.modelData.split("\t")[1]
-                                font.family: "Inter"
-                                font.pixelSize: 16
-                                font.weight: Font.Medium
-                                color: "#ffffff"
-                                elide: Text.ElideRight
+                        TapHandler {
+                            cursorShape: Qt.PointingHandCursor
+                            onTapped: {
+                                root.copy();
                             }
                         }
+                        // MouseArea {
+                        //     anchors.fill: parent
+                        //     hoverEnabled: true
+                        //     cursorShape: Qt.PointingHandCursor
+                        //     onEntered: root.selectedIndex = card.index
+                        //     onClicked: {
+                        //         root.copy();
+                        //         root.close();
+                        //     }
+                        // }
                     }
-
-                    TapHandler {
-                        cursorShape: Qt.PointingHandCursor
-                        onTapped: {
-                            root.copy();
-                        }
-                    }
-                    // MouseArea {
-                    //     anchors.fill: parent
-                    //     hoverEnabled: true
-                    //     cursorShape: Qt.PointingHandCursor
-                    //     onEntered: root.selectedIndex = card.index
-                    //     onClicked: {
-                    //         root.copy();
-                    //         root.close();
-                    //     }
-                    // }
                 }
             }
+
             // Flickable {
             //     id: list
             //     Layout.fillWidth: true

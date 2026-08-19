@@ -1,0 +1,313 @@
+"""
+Add integration with native blender types, following are supported:
+
+- bpy.types.Object
+- bpy.types.MeshVertex
+- bpy.types.MeshEdge
+- bpy.types.MeshPolygon
+"""
+
+
+from .logic import StatefulOperatorLogic
+from .constants import mesh_element_types
+from .utilities.generic import get_pointer_get_set, to_list
+from .utilities.geometry import (
+    get_evaluated_obj,
+    get_mesh_element,
+    get_placement_pos,
+    get_scale_from_pos,
+)
+
+import bpy
+from bpy.types import Context
+
+from typing import Optional, Any
+
+
+class StatefulOperator(StatefulOperatorLogic):
+    """Extends logic class with native blender integration"""
+
+    @classmethod
+    def register_properties(cls):
+        states = cls.get_states_definition()
+        annotations = cls.__annotations__.copy()
+
+        for i, s in enumerate(states):
+            pointer_name = s.pointer
+            types = s.types
+
+            if not pointer_name:
+                continue
+
+            if pointer_name in annotations.keys():
+                # Skip pointers that have a property defined
+                # Note: pointer might not need implicit props, thus no need for getter/setter
+                continue
+
+            if hasattr(cls, pointer_name):
+                # This can happen when the addon is re-enabled in the same session
+                continue
+
+            get, set = get_pointer_get_set(i)
+            setattr(cls, pointer_name, get)
+            # Note: keep state pointers read-only, only set with set_state_pointer()
+
+        for a in annotations.keys():
+            if hasattr(cls, a):
+                raise NameError(
+                    "Cannot register implicit pointer properties, class {} already has attribute of name {}".format(
+                        cls, a
+                    )
+                )
+
+    def state_property(self, state_index):
+        return None
+
+    def get_state_pointer(
+        self, index: Optional[int] = None, implicit: Optional[bool] = False
+    ):
+        # Creates pointer value from its implicitly stored props
+        if index is None:
+            index = self.state_index
+
+        state = self.get_states_definition()[index]
+        pointer_name = state.pointer
+        data = self._state_data.get(index, {})
+        if "type" not in data.keys():
+            return None
+
+        pointer_type = data["type"]
+        if not pointer_type:
+            return None
+
+        if pointer_type in (bpy.types.Object, *mesh_element_types):
+            obj_name = data["object_name"]
+            blender_obj = bpy.data.objects.get(obj_name)
+            if blender_obj is None:
+                return None
+            obj = get_evaluated_obj(bpy.context, blender_obj)
+
+        if pointer_type in mesh_element_types:
+            index = data["mesh_index"]
+
+        if pointer_type == bpy.types.Object:
+            if implicit:
+                return obj_name
+            return obj
+
+        elif pointer_type == bpy.types.MeshVertex:
+            if implicit:
+                return obj_name, index
+            return obj.data.vertices[index]
+
+        elif pointer_type == bpy.types.MeshEdge:
+            if implicit:
+                return obj_name, index
+            edges = getattr(obj.data, "edges", None)
+            if edges is None:
+                # A curve/sketch edge has no mesh edge to return; hand back the
+                # object so the pointer still reads as "set" (the picker resolves
+                # the actual endpoints from the stored index).
+                return obj
+            if index >= len(edges):
+                return None
+            return edges[index]
+
+        elif pointer_type == bpy.types.MeshPolygon:
+            if implicit:
+                return obj_name, index
+            return obj.data.polygons[index]
+
+    def set_state_pointer(self, values, index=None, implicit=False):
+        # handles type specific setters
+        if index is None:
+            index = self.state_index
+
+        state = self.get_states_definition()[index]
+        pointer_name = state.pointer
+        data = self._state_data.get(index, {})
+
+        pointer_type = data.get("type")
+        if pointer_type is None:
+            return None
+
+        def get_value(index):
+            if values is None:
+                return None
+            return values[index]
+
+        if pointer_type == bpy.types.Object:
+            if implicit:
+                val = get_value(0)
+            else:
+                val = get_value(0).name
+            data["object_name"] = val
+            return True
+
+        elif pointer_type in mesh_element_types:
+            obj_name = get_value(0) if implicit else get_value(0).name
+            data["object_name"] = obj_name
+            data["mesh_index"] = get_value(1) if implicit else get_value(1).index
+            return True
+
+    def state_func(self, context: Context, coords):
+        pos = get_placement_pos(context, coords)
+
+        prop_name = self.state.property
+        prop = self.rna_type.properties.get(prop_name)
+        if not prop:
+            return super().state_func(context, coords)
+
+        if prop.array_length > 1:
+            return pos
+
+        if prop.type in ("FLOAT", "INT"):
+            # Take the delta between the state start position and current position in screenspace X-Axis
+            # and scale the value by the zoom level at the state start position
+
+            type_cast = float if prop.type == "FLOAT" else int
+            old_pos = get_placement_pos(context, self.state_init_coords)
+            scale = get_scale_from_pos(old_pos, context.region_data) / 500
+
+            # NOTE: self.state_init_coords is not set for non-interactive states
+            return type_cast((coords.x - self.state_init_coords.x) * scale)
+
+        return super().state_func(context, coords)
+
+    def pick_element(self, context: Context, coords):
+        # return a list of implicit prop values if pointer need implicit props
+        state = self.state
+        data = self.state_data
+
+        types = {
+            "vertex": (bpy.types.MeshVertex in state.types),
+            "edge": (bpy.types.MeshEdge in state.types),
+            "face": (bpy.types.MeshPolygon in state.types),
+        }
+
+        do_object = bpy.types.Object in state.types
+        do_mesh_elem = any(types.values())
+
+        if not do_object and not do_mesh_elem:
+            return
+
+        ob, type, index = get_mesh_element(context, coords, **types)
+
+        # NOTE: scene.ray_cast() cannot pick empties (no geometry).
+        # Empties are picked via custom ID buffer or selection prefill.
+
+        if not ob:
+            return None
+
+        if bpy.types.Object in state.types:
+            data["type"] = bpy.types.Object
+            return ob.name
+
+        # get_mesh_element returns the Object sentinel when the ray hit an
+        # object but no vertex/edge/face landed within threshold. For a
+        # mesh-element state that's a miss -- return None so callers can fall
+        # back (e.g. the curve-edge pick for a revolve axis).
+        type_map = {
+            "VERTEX": bpy.types.MeshVertex,
+            "EDGE": bpy.types.MeshEdge,
+            "FACE": bpy.types.MeshPolygon,
+        }
+        if type not in type_map:
+            return None
+        data["type"] = type_map[type]
+
+        return ob.name, index
+
+    def gather_selection(self, context: Context):
+        # Return list filled with all selected verts/edges/faces/objects
+        selected = []
+        states = self.get_states()
+        types = []
+        for s in states:
+            types.extend(s.types)
+
+        # Note: Where to take mesh elements from? Editmode data is only written
+        # when left probably making it impossible to use selected elements in realtime.
+        if any([t == bpy.types.Object for t in types]):
+            selected.extend(context.selected_objects)
+
+        return selected
+
+    # Gets called for every state
+    def parse_selection(self, context, selected, index=None):
+        # Look for a valid element in selection
+        # should go through objects, vertices, entities depending on state.types
+
+        result = None
+        if index is None:
+            index = self.state_index
+        state = self.get_states_definition()[index]
+        data = self.get_state_data(index)
+
+        if state.pointer:
+            types = state.types
+            for i, e in enumerate(selected):
+                if self._matches_types(e, types):
+                    result = selected.pop(i)
+                    break
+
+        if result:
+            data["type"] = type(result)
+            self.set_state_pointer(to_list(result), index=index)
+            self.state_data["is_existing_entity"] = True
+            return True
+
+    @staticmethod
+    def _matches_types(element, types):
+        """Check if element matches accepted types (supports both entities and CurveRefs)."""
+        if type(element) in types:
+            return True
+
+        # Map CurveRef types to legacy entity types
+        from ..model.curve_ref import (
+            CurveRef, PointRef, LineRef, ArcRef, CircleRef,
+        )
+        if not isinstance(element, CurveRef):
+            return False
+
+        from ..model.types import (
+            SlvsPoint2D, SlvsLine2D, SlvsArc, SlvsCircle,
+        )
+        _map = {
+            PointRef: SlvsPoint2D,
+            LineRef: SlvsLine2D,
+            ArcRef: SlvsArc,
+            CircleRef: SlvsCircle,
+        }
+        mapped = _map.get(type(element))
+        return mapped in types if mapped else False
+
+    def draw(self, context):
+        layout = self.layout
+
+        for i, state in enumerate(self.get_states()):
+            if i != 0:
+                layout.separator()
+
+            layout.label(text=state.name)
+
+            state_data = self._state_data.get(i, {})
+            is_existing = state_data.get("is_existing_entity", False)
+            props = self.get_property(index=i)
+
+            if state.pointer and is_existing:
+                layout.label(text=str(getattr(self, state.pointer)))
+            elif props:
+                for p in props:
+                    layout.prop(self, p, text="")
+
+        if hasattr(self, "draw_settings"):
+            self.draw_settings(context)
+
+    def create_snapshot(self, context: Context):
+        """Snapshot relevant Blender data references"""
+        return None
+
+    def restore_snapshot(self, context: Context, snapshot):
+        """Restore Blender references - mostly validation"""
+        pass
