@@ -1,38 +1,76 @@
-//@ pragma UseQApplication
-
 import QtQuick
 import Quickshell
-import QtQuick.Effects
-import QtQuick.Shapes
 import "./modules/notification"
-import "./modules/controlcenter"
-import "./modules/launcher"
-import "./modules/clipboard"
 import "./modules/help"
 import "./modules/osd"
-import "./modules/mediaplayer"
 import "./modules/wallpaperselector"
 import "./modules/logout"
 import "./modules/mpd"
+import "./modules/launcher"
+import "./modules/clipboard"
+import "./modules/controlcenter"
 import "./modules"
-import "./modules/bar"
 import "./services"
 
 ShellRoot {
     Shortcuts {}
     Gestures {}
 
-    Bar {}
+    // Dummy Bar
+    PanelWindow {
+        anchors {
+            top: true
+            left: true
+            right: true
+        }
 
-    LauncherWindow {}
+        height: 34
+        color: "transparent"
+
+        screen: root.screen
+        aboveWindows: false
+    }
+
+    // Loader {
+    //     active: ShellState.controlcenter
+    // }
     ControlCenterWindow {}
+
+    // Loader {
+    //     active: ShellState.osn
+    // }
     NotificationWindow {}
+
+    // Loader {
+    //     active: ShellState.osd
+    // }
     OsdWindow {}
-    HelpWindow {}
+
+    // Loader {
+    //     active: ShellState.launcher
+    // }
+    LauncherWindow {}
+
+    // Loader {
+    //     active: ShellState.clipboard
+    // }
     ClipboardWindow {}
-    // MediaPlayerWindow {}
+
+    // Loader {
+    //     active: ShellState.help
+    // }
+    HelpWindow {}
+    // Loader {
+    //     active: ShellState.wallpaper
+    // }
     WallpaperSelectorWindow {}
+    // Loader {
+    //     active: ShellState.logout
+    // }
     LogoutWindow {}
+    // Loader {
+    //     active: ShellState.mpd
+    // }
     MpdWindow {}
 
     PanelWindow {
@@ -45,10 +83,11 @@ ShellRoot {
             bottom: true
         }
         exclusionMode: ExclusionMode.Ignore
-        aboveWindows: false
-        // aboveWindows: scope.activeFocus
+        // aboveWindows: false
+        // aboveWindows: ShellState.activeFocus
+        aboveWindows: ShellState.mediaplayer
         focusable: true
-        implicitHeight: 600
+        // implicitHeight: 600
 
         color: "transparent"
         // color: "#0fffffff"
@@ -59,123 +98,72 @@ ShellRoot {
             aboveWindows = false;
         }
 
-        FocusScope {
-            id: scope
+        Bar {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+        }
+
+        // Loader {
+        //     active: ShellState.controlcenter
+        //     anchors.fill: parent
+        //
+        //     ControlCenter {
+        //         anchors.right: parent.right
+        //         anchors.verticalCenter: parent.verticalCenter
+        //     }
+        // }
+
+        Loader {
+            active: ShellState.mediaplayer
             anchors.fill: parent
-            focus: true
-            onActiveFocusChanged: {
-                // console.log("focusChanged()", activeFocus);
-                if (activeFocus)
-                    root.aboveWindows = true;
-                else
-                    root.aboveWindows = false;
-            }
-
-            Keys.onEscapePressed: root.close()
-
-            // Timer {
-            //     id: closeTimer
-            //     interval: 500
-            //     onTriggered: if (!hoverHandler.hovered)
-            //         root.close()
-            // }
-            // HoverHandler {
-            //     id: hoverHandler
-            //     cursorShape: Qt.PointingHandCursor
-            //     onHoveredChanged: {
-            //         console.log("hoverChanged()", hovered);
-            //         if (hovered)
-            //             closeTimer.stop();
-            //         else if (root.aboveWindows)
-            //             closeTimer.restart();
-            //     }
-            // }
-
-            BarContent {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-            }
-
-            MultiEffect {
-                source: background
-                anchors.fill: background
-                maskEnabled: true
-                maskSource: mask
-
-                // layer.smooth: true
-
-                maskThresholdMin: 0.5
-                maskSpreadAtMin: 1.0
-            }
-
-            Rectangle {
-                id: background
-                anchors.fill: parent
-                visible: false
-                // smooth: true
-                color: "#01000000"
-            }
-
-            Shape {
-                id: mask
-                anchors.fill: background
-                antialiasing: true
-
-                visible: false
-                layer.enabled: true
-
-                property real barHeight: 54
-                property real mediaPlayerWidth: 640
-                property real mediaPlayerHeight: 320
-
-                preferredRendererType: Shape.CurveRenderer
-
-                ShapePath {
-                    strokeColor: "transparent"
-
-                    startX: 0
-                    startY: 0
-
-                    PathLine {
-                        x: 0
-                        y: mask.barHeight
-                    }
-                    PathArc {
-                        radiusX: 20
-                        radiusY: 20
-                        x: 20
-                        y: mask.barHeight - 20
-                    }
-
-                    PathLine {
-                        x: mask.width - 20
-                        y: mask.barHeight - 20
-                    }
-
-                    PathArc {
-                        radiusX: 20
-                        radiusY: 20
-                        x: mask.width
-                        y: mask.barHeight
-                    }
-                    PathLine {
-                        x: mask.width
-                        y: 0
-                    }
-                    PathLine {
-                        x: 0
-                        y: 0
-                    }
-                }
-            }
 
             MediaPlayer {
-                // visible: ShellState.mediaplayer
                 anchors.top: parent.top
                 anchors.topMargin: 34
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }
+
+        // Loader {
+        //     active: ShellState.osd
+        //     anchors.fill: parent
+        //
+        //     OSD {
+        //         anchors.right: parent.right
+        //         anchors.verticalCenter: parent.verticalCenter
+        //     }
+        // }
+
+        // Loader {
+        //     active: ShellState.osn
+        //     anchors.fill: parent
+        //
+        //     Notification {
+        //         anchors.top: parent.top
+        //         anchors.right: parent.right
+        //         anchors.topMargin: 34
+        //     }
+        // }
+
+        // Loader {
+        //     active: ShellState.launcher
+        //     anchors.fill: parent
+        //
+        //     Launcher {
+        //         anchors.bottom: parent.bottom
+        //         anchors.horizontalCenter: parent.horizontalCenter
+        //     }
+        // }
+
+        // Loader {
+        //     active: ShellState.clipboard
+        //     anchors.fill: parent
+        //
+        //     Clipboard {
+        //         anchors.bottom: parent.bottom
+        //         anchors.horizontalCenter: parent.horizontalCenter
+        //     }
+        // }
     }
 }

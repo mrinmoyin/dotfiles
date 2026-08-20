@@ -2,39 +2,54 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Shapes
-import Quickshell
 import Quickshell.Services.Pipewire
-import "../../services"
-import "../../controls"
-import "../../config"
+import "../services"
+import "../controls"
+import "../config"
 
-PanelWindow {
+Item {
     id: root
+
+    width: 0
+    height: 460
+    // implicitWidth: content.width + content.anchors.leftMargin + content.anchors.rightMargin
+    // implicitHeight: Math.min(460, screen.height - (content.anchors.topMargin + content.anchors.bottomMargin)) + content.anchors.topMargin + content.anchors.bottomMargin
 
     readonly property bool active: ShellState.osd
 
-    anchors {
-        right: true
+    onActiveChanged: {
+        if (active)
+            inAnimation.start();
+        // else
+        //     outAnimation.start();
     }
 
-    margins {
-        right: active ? 0 : -width
+    PropertyAnimation {
+        id: inAnimation
+        target: root
+        property: "width"
+        alwaysRunToEnd: true
+        to: content.width + content.anchors.leftMargin + content.anchors.rightMargin
+        duration: Config.appearence.animationDuration || 150
+        easing.type: Easing.OutQuad
     }
-
-    color: "transparent"
-    implicitWidth: content.width + content.anchors.leftMargin + content.anchors.rightMargin
-    implicitHeight: 560
-    // implicitHeight: Math.min(460, screen.height - (content.anchors.topMargin + content.anchors.bottomMargin)) + content.anchors.topMargin + content.anchors.bottomMargin
-
-    screen: Quickshell.screens[0]
-    exclusionMode: ExclusionMode.Normal
+    PropertyAnimation {
+        id: outAnimation
+        target: root
+        property: "width"
+        alwaysRunToEnd: true
+        to: 0
+        duration: Config.appearence.animationDuration || 150
+        easing.type: Easing.InQuad
+        onFinished: root.close()
+    }
 
     HoverHandler {
         id: hoverHandler
         onHoveredChanged: {
             if (hovered)
                 closeTimer.stop();
-            else if (root.visible)
+            else
                 closeTimer.restart();
         }
     }
@@ -44,7 +59,12 @@ PanelWindow {
         running: root.visible
         interval: 2000
         onTriggered: if (!hoverHandler.hovered)
-            ShellState.osd = false
+            outAnimation.start()
+    }
+
+    function close(): void {
+        ShellState.osd = false;
+        // applicationsContent.visible = false
     }
 
     MultiEffect {
@@ -226,16 +246,16 @@ PanelWindow {
             id: applicationsContent
             implicitHeight: parent.height
             // implicitWidth: active ? applicationsList.width : 0
-            visible: active
+            visible: false
             spacing: 8
 
-            property bool active: false
-
-            Binding {
-                target: applicationsContent
-                property: "active"
-                value: !ShellState.osd && false
-            }
+            // property bool active: false
+            //
+            // Binding {
+            //     target: applicationsContent
+            //     property: "active"
+            //     value: !ShellState.osd && false
+            // }
 
             Repeater {
                 model: AudioService.applications
@@ -334,7 +354,8 @@ PanelWindow {
                 icon: "󰮫"
                 enabled: AudioService.applications.length > 0
                 Layout.fillWidth: true
-                onClicked: applicationsContent.active = !applicationsContent.active
+                // onClicked: applicationsContent.active = !applicationsContent.active
+                onClicked: applicationsContent.visible = !applicationsContent.visible
             }
         }
     }

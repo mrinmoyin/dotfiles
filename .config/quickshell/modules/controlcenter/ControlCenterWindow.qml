@@ -208,11 +208,17 @@ PanelWindow {
 
                     IconButton {
                         icon: "󰒓"
-                        onClicked: ShellState.wallpaper = !ShellState.wallpaper
+                        onClicked: {
+                            root.close();
+                            ShellState.wallpaper = !ShellState.wallpaper;
+                        }
                     }
                     IconButton {
                         icon: "󰐥"
-                        onClicked: ShellState.logout = !ShellState.logout
+                        onClicked: {
+                            root.close();
+                            ShellState.logout = !ShellState.logout;
+                        }
                     }
                 }
             }

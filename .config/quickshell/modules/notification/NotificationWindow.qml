@@ -15,14 +15,15 @@ PanelWindow {
     id: root
 
     anchors {
-        top: true
+        // top: true
         right: true
+        bottom: true
     }
 
-    margins {
-        // top: active ? 0 : (-height + -34)
-        top: 0
-    }
+    // margins {
+    // top: active ? 0 : (-height + -34)
+    // top: 0
+    // }
 
     // readonly property bool active: NotificationService.onScreenNotificationsModel.count > 0
     visible: NotificationService.onScreenNotificationsModel.count > 0
@@ -74,52 +75,106 @@ PanelWindow {
             strokeColor: "transparent"
 
             startX: 0
-            startY: 0
+            startY: mask.height
 
             PathArc {
+                direction: PathArc.Counterclockwise
                 radiusX: 20
                 radiusY: 20
                 x: 20
-                y: 20
+                y: mask.height - 20
             }
             PathLine {
                 x: 20
-                y: mask.height - 40
+                y: 40
+            }
+            PathArc {
+                radiusX: 20
+                radiusY: 20
+                x: 40
+                y: 20
+            }
+            PathLine {
+                x: mask.width - 20
+                y: 20
             }
             PathArc {
                 direction: PathArc.Counterclockwise
                 radiusX: 20
                 radiusY: 20
-                x: 40
-                y: mask.height - 20
+                x: mask.width
+                y: 0
             }
             PathLine {
-                x: mask.width - 20
-                y: mask.height - 20
-            }
-            PathArc {
-                radiusX: 20
-                radiusY: 20
                 x: mask.width
                 y: mask.height
             }
             PathLine {
-                x: mask.width
-                y: 20
-            }
-            PathArc {
-                direction: PathArc.Counterclockwise
-                radiusX: 20
-                radiusY: 20
-                x: mask.width - 20
-                y: 0
-            }
-            PathLine {
                 x: 0
-                y: 0
+                y: mask.height
             }
         }
     }
+    // Shape {
+    //     id: mask
+    //     anchors.fill: background
+    //     antialiasing: true
+    //
+    //     visible: false
+    //     layer.enabled: true
+    //
+    //     preferredRendererType: Shape.CurveRenderer
+    //
+    //     ShapePath {
+    //         strokeColor: "transparent"
+    //
+    //         startX: 0
+    //         startY: 0
+    //
+    //         PathArc {
+    //             radiusX: 20
+    //             radiusY: 20
+    //             x: 20
+    //             y: 20
+    //         }
+    //         PathLine {
+    //             x: 20
+    //             y: mask.height - 40
+    //         }
+    //         PathArc {
+    //             direction: PathArc.Counterclockwise
+    //             radiusX: 20
+    //             radiusY: 20
+    //             x: 40
+    //             y: mask.height - 20
+    //         }
+    //         PathLine {
+    //             x: mask.width - 20
+    //             y: mask.height - 20
+    //         }
+    //         PathArc {
+    //             radiusX: 20
+    //             radiusY: 20
+    //             x: mask.width
+    //             y: mask.height
+    //         }
+    //         PathLine {
+    //             x: mask.width
+    //             y: 20
+    //         }
+    //         PathArc {
+    //             direction: PathArc.Counterclockwise
+    //             radiusX: 20
+    //             radiusY: 20
+    //             x: mask.width - 20
+    //             y: 0
+    //         }
+    //         PathLine {
+    //             x: 0
+    //             y: 0
+    //         }
+    //     }
+    // }
 
     Column {
         id: content
@@ -129,7 +184,8 @@ PanelWindow {
             left: parent.left
             right: parent.right
 
-            topMargin: 16
+            // topMargin: 16
+            topMargin: 36
             rightMargin: 16
             leftMargin: 36
             bottomMargin: 16

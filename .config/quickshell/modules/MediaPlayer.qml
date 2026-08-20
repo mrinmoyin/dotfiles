@@ -2,8 +2,9 @@ import QtQuick
 import QtQuick.Effects
 import QtQuick.Shapes
 import QtQuick.Controls
-import "../../services"
-import "../../config"
+import "../services"
+import "../config"
+import "./mediaplayer"
 
 Item {
     id: root
@@ -11,7 +12,6 @@ Item {
     width: 640
     height: 0
 
-    visible: ShellState.mediaplayer
     readonly property bool active: ShellState.mediaplayer
 
     onActiveChanged: {
@@ -27,8 +27,9 @@ Item {
         property: "height"
         alwaysRunToEnd: true
         to: 320
-        duration: Config.appearence.animationDuration || 150
-        easing.type: Easing.OutQuad
+        duration: Config.appearence.animationDuration || 500
+        easing.type: Easing.InOutCirc
+        // easing.bezierCurve: [0.85, 0, 0.15, 1]
     }
     PropertyAnimation {
         id: outAnimation
@@ -36,11 +37,10 @@ Item {
         property: "height"
         alwaysRunToEnd: true
         to: 0
-        duration: Config.appearence.animationDuration || 150
-        easing.type: Easing.InQuad
-        onFinished: {
-            root.close();
-        }
+        duration: Config.appearence.animationDuration || 500
+        easing.type: Easing.InOutCirc
+        // easing.bezierCurve: [0.85, 0, 0.15, 1]
+        onFinished: root.close()
     }
 
     function close(): void {
@@ -53,7 +53,7 @@ Item {
         onHoveredChanged: {
             if (hovered)
                 closeTimer.stop();
-            else if (root.visible)
+            else
                 closeTimer.restart();
         }
     }

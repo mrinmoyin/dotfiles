@@ -5,7 +5,6 @@ import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Wayland
 import "../../config"
 import "../../controls"
 import "../../services"
@@ -14,6 +13,8 @@ PanelWindow {
     id: root
 
     readonly property bool active: ShellState.launcher
+    onActiveChanged: if (active)
+        root.query = ""
 
     HyprlandFocusGrab {
         active: root.active
@@ -34,7 +35,6 @@ PanelWindow {
 
     screen: Quickshell.screens[0]
     exclusionMode: ExclusionMode.Normal
-    // WlrLayershell.keyboardFocus: active ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     property string query: ""
     readonly property list<DesktopEntry> apps: DesktopEntries.applications.values ?? []
@@ -63,33 +63,8 @@ PanelWindow {
 
     function close(): void {
         ShellState.launcher = false;
-        root.query = "";
+        // root.query = "";
     }
-
-    // Loader {
-    //     active: root.active
-    //     focus: true
-    //     anchors.fill: parent
-    //     sourceComponent: LauncherContent {}
-    //     states: [
-    //         State {
-    //             name: "active"
-    //             when: root.active === true
-    //         }
-    //     ]
-    //     transitions: [
-    //         Transition {
-    //             from: "active"
-    //             to: ""
-    //
-    //             NumberAnimation {
-    //                 property: root.margins.bottom
-    //                 target: root.active
-    //                 duration: 1000
-    //             }
-    //         }
-    //     ]
-    // }
 
     FocusScope {
         anchors.fill: parent

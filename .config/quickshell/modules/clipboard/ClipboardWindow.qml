@@ -13,8 +13,11 @@ PanelWindow {
 
     readonly property bool active: ShellState.clipboard
     onActiveChanged: {
-        if (active)
+        if (active) {
             ClipboardService.refresh();
+            root.query = "";
+            list.currentIndex = 0;
+        }
     }
 
     HyprlandFocusGrab {
@@ -56,8 +59,8 @@ PanelWindow {
 
     function close(): void {
         ShellState.clipboard = false;
-        root.query = "";
-        list.currentIndex = 0;
+        // root.query = "";
+        // list.currentIndex = 0;
     }
 
     FocusScope {
