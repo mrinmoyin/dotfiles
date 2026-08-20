@@ -89,4 +89,13 @@ Scope {
             ShellState.launcher = ShellState.osd = ShellState.controlcenter = !(ShellState.launcher || ShellState.osd || ShellState.controlcenter);
         }
     }
+
+    GlobalShortcut {
+        name: "testmode"
+        description: "Toggle test mode"
+
+        onPressed: {
+            ShellState.testmode = !ShellState.testmode;
+        }
+    }
 }

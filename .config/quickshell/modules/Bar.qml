@@ -32,6 +32,7 @@ Scope {
     }
 
     PanelWindow {
+        visible: false
         anchors {
             top: true
             left: true
@@ -39,6 +40,7 @@ Scope {
         }
         exclusionMode: ExclusionMode.Ignore
         aboveWindows: false
+        // aboveWindows: scope.focus
 
         implicitWidth: screen.width
         implicitHeight: 54

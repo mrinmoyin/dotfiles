@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
+import "../config"
 
 Singleton {
     id: root
@@ -62,6 +63,8 @@ Singleton {
             root.trackedNotificationsModel.insert(0, n);
             if (!ShellState.controlcenter) {
                 root.onScreenNotificationsModel.insert(0, n);
+                if (root.onScreenNotificationsModel.count === Config.onScreenNotification.maxLength + 1)
+                    root.onScreenNotificationsModel.remove(Config.onScreenNotification.maxLength);
             }
         }
     }

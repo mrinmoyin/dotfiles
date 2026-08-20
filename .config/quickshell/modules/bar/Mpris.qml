@@ -3,6 +3,7 @@ import Quickshell
 import Quickshell.Services.Mpris
 import "../../controls"
 import "../../services"
+import "../../config"
 
 Item {
     id: root
@@ -36,8 +37,9 @@ Item {
             Item {
                 id: textContainer
                 implicitWidth: Math.min(parent.width - 16, visibleText.implicitWidth)
-                implicitHeight: parent.height
+                implicitHeight: visibleText.height
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
                 opacity: 1
 
                 readonly property string title: "  " + root.player.trackTitle || "Unknown"
@@ -53,7 +55,7 @@ Item {
                     alwaysRunToEnd: true
                     property: "opacity"
                     to: 0
-                    duration: 150
+                    duration: Config.appearence.animationDuration || 150
                     onFinished: {
                         visibleText.text = textContainer.currentText;
                         inAnimation.start();
@@ -65,14 +67,12 @@ Item {
                     alwaysRunToEnd: true
                     property: "opacity"
                     to: 1
-                    duration: 150
-                    onFinished: visibleText.text = textContainer.currentText
+                    duration: Config.appearence.animationDuration || 150
                 }
 
                 Text {
                     id: visibleText
                     width: parent.width
-                    anchors.verticalCenter: parent.verticalCenter
                     text: parent.title
                     color: "#ffffff"
                     font.pixelSize: 14
@@ -80,18 +80,6 @@ Item {
                     elide: Text.ElideRight
                     lineHeight: 0
                 }
-
-                // Text {
-                //     id: visibleText
-                //     width: parent.width
-                //     anchors.verticalCenter: parent.verticalCenter
-                //     text: parent.currentText
-                //     color: "#ffffff"
-                //     font.pixelSize: 14
-                //     font.weight: Font.DemiBold
-                //     elide: Text.ElideRight
-                //     lineHeight: 0
-                // }
             }
 
             // Item {

@@ -19,10 +19,24 @@ PanelWindow {
         right: true
     }
 
+    margins {
+        // top: active ? 0 : (-height + -34)
+        top: 0
+    }
+
+    // readonly property bool active: NotificationService.onScreenNotificationsModel.count > 0
     visible: NotificationService.onScreenNotificationsModel.count > 0
     implicitWidth: 360
     implicitHeight: content.height + 52
+    // implicitHeight: content.height + (content.anchors.topMargin * 2) + 20
     color: "transparent"
+
+    // height: active ? content.height + 52 : 0
+    // Behavior on height {
+    //     NumberAnimation {
+    //         duration: 500
+    //     }
+    // }
 
     screen: Quickshell.screens[0]
 
@@ -137,7 +151,7 @@ PanelWindow {
 
                 Timer {
                     running: true
-                    interval: 5000
+                    interval: Config.onScreenNotification.timeout
                     onTriggered: NotificationService.onScreenNotificationsModel.remove(card.index)
                 }
 

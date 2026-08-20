@@ -21,13 +21,14 @@ hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("swaync-client -t -sw"))
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(passManager))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd("flameshot gui"))
 
-hl.bind(mainMod .. " + SHIFT + B", hl.dsp.global("quickshell:showcase"))
+-- hl.bind(mainMod .. " + SHIFT + B", hl.dsp.global("quickshell:showcase"))
 hl.bind(mainMod .. " + SPACE", hl.dsp.global("quickshell:launcher"))
 hl.bind(mainMod .. " + M", hl.dsp.global("quickshell:controlcenter"))
 hl.bind(mainMod .. " + P", hl.dsp.global("quickshell:clipboard"))
 hl.bind(mainMod .. " + O", hl.dsp.global("quickshell:osd"))
 hl.bind(mainMod .. " + Q", hl.dsp.global("quickshell:logout"))
 hl.bind(mainMod .. " + slash", hl.dsp.global("quickshell:help"))
+hl.bind(mainMod .. " + SHIFT + B", hl.dsp.global("quickshell:testmode"))
 
 -- Media Controls
 hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("alacritty --title rmpc --command rmpc"))
