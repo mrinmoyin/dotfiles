@@ -33,13 +33,14 @@ ShellRoot {
         aboveWindows: false
     }
 
-    Loader {
-        id: controlCenterLoader
-        active: ShellState.controlcenter
-        sourceComponent: Component {
-            ControlCenterWindow {}
-        }
-    }
+    // Loader {
+    //     id: controlCenterLoader
+    //     active: ShellState.controlcenter
+    //     sourceComponent: Component {
+    //         ControlCenterWindow {}
+    //     }
+    // }
+    ControlCenterWindow {}
 
     Loader {
         active: ShellState.osn

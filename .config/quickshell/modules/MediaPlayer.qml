@@ -15,9 +15,10 @@ Item {
     readonly property bool active: ShellState.mediaplayer
 
     onActiveChanged: {
-        if (active)
+        if (active) {
             inAnimation.start();
-        else
+            playersListLoader.item.currentIndex = MprisService.playerIndex;
+        } else
             outAnimation.start();
     }
 
@@ -45,7 +46,6 @@ Item {
 
     function close(): void {
         ShellState.mediaplayer = false;
-        playersList.currentIndex = MprisService.playerIndex;
     }
 
     HoverHandler {
@@ -158,17 +158,25 @@ Item {
         }
         clip: true
 
-        SwipeView {
-            id: playersList
-            visible: MprisService.players.length > 0
+        Loader {
+            id: playersListLoader
+            active: ShellState.mediaplayer
             anchors.fill: parent
-            spacing: 8
-            currentIndex: MprisService.playerIndex
 
-            Repeater {
-                model: MprisService.players
+            sourceComponent: Component {
+                SwipeView {
+                    id: playersList
+                    visible: MprisService.players.length > 0
+                    anchors.fill: parent
+                    spacing: 8
+                    currentIndex: MprisService.playerIndex
 
-                MediaPlayerCard {}
+                    Repeater {
+                        model: MprisService.players
+
+                        MediaPlayerCard {}
+                    }
+                }
             }
         }
     }

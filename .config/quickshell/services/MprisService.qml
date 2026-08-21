@@ -9,14 +9,16 @@ Singleton {
     id: root
 
     readonly property list<MprisPlayer> players: Mpris.players.values
-    readonly property list<MprisPlayer> activePlayers: players.filter(plyr => plyr.isPlaying === true) || players[0]
-    // readonly property MprisPlayer player: players[lastPlayerIndex].isPlaying ? players[lastPlayerIndex] : players.find(plyr => plyr.isPlaying === true) || players[0]
-    // readonly property MprisPlayer player: players[lastPlayerIndex].isPlaying ? players[lastPlayerIndex] : activePlayers[0] || players[0]
-    readonly property MprisPlayer player: players.find(plyr => plyr.isPlaying === true) || players[0]
+    readonly property list<MprisPlayer> activePlayers: players.filter(plyr => plyr.isPlaying === true)
+    readonly property MprisPlayer activePlayer: activePlayers[0]
+    onActivePlayerChanged: if (activePlayer)
+        lastPlayerIndex = players.indexOf(activePlayer)
+    readonly property MprisPlayer player: players.find(plyr => plyr.isPlaying === true) || players[lastPlayerIndex] || players[0]
+
     readonly property int playerIndex: players.indexOf(player)
     property int lastPlayerIndex: 0
 
-    // TODO seperate lyrics control for each player
+    // TODO seperate lyrics control for every player
     property bool lyricsEnabled: false
     property bool lyricsAvailable: false
     property bool loadingLyrics: lyricsProc.running
