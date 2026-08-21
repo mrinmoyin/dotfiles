@@ -55,19 +55,21 @@ ShellRoot {
         }
     }
 
-    Loader {
-        active: ShellState.launcher
-        sourceComponent: Component {
-            LauncherWindow {}
-        }
-    }
+    // Loader {
+    //     active: ShellState.launcher
+    //     sourceComponent: Component {
+    //         LauncherWindow {}
+    //     }
+    // }
+    LauncherWindow {}
 
-    Loader {
-        active: ShellState.clipboard
-        sourceComponent: Component {
-            ClipboardWindow {}
-        }
-    }
+    // Loader {
+    //     active: ShellState.clipboard
+    //     sourceComponent: Component {
+    //         ClipboardWindow {}
+    //     }
+    // }
+    ClipboardWindow {}
 
     Loader {
         active: ShellState.help

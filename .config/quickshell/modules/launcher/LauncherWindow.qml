@@ -11,6 +11,7 @@ import "../../services"
 
 PanelWindow {
     id: root
+    visible: active
 
     readonly property bool active: ShellState.launcher
 
@@ -54,7 +55,9 @@ PanelWindow {
     }
 
     function launch(): void {
-        list.currentItem.modelData.execute();
+        // list.currentItem.modelData.execute();
+        // listLoader.item.currentItem.modelData.execute();
+        listLoader.item.list.currentItem.modelData.execute();
         close();
     }
 
@@ -97,21 +100,37 @@ PanelWindow {
         }
 
         Keys.onEscapePressed: root.close()
-        Keys.onDownPressed: switch (list.currentIndex) {
-        case list.count - 1:
-            list.currentIndex = 0;
-            scrollable.ScrollBar.vertical.position = 0.0;
+        // Keys.onDownPressed: switch (list.currentIndex) {
+        // case list.count - 1:
+        //     list.currentIndex = 0;
+        //     scrollable.ScrollBar.vertical.position = 0.0;
+        //     break;
+        // default:
+        //     list.incrementCurrentIndex();
+        // }
+        // Keys.onUpPressed: switch (list.currentIndex) {
+        // case 0:
+        //     list.currentIndex = list.count - 1;
+        //     scrollable.ScrollBar.vertical.position = 1.0 - scrollable.ScrollBar.vertical.size;
+        //     break;
+        // default:
+        //     list.decrementCurrentIndex();
+        // }
+        Keys.onDownPressed: switch (listLoader.item.list.currentIndex) {
+        case listLoader.item.list.count - 1:
+            listLoader.item.list.currentIndex = 0;
+            listLoader.item.ScrollBar.vertical.position = 0.0;
             break;
         default:
-            list.incrementCurrentIndex();
+            listLoader.item.list.incrementCurrentIndex();
         }
-        Keys.onUpPressed: switch (list.currentIndex) {
+        Keys.onUpPressed: switch (listLoader.item.list.currentIndex) {
         case 0:
-            list.currentIndex = list.count - 1;
-            scrollable.ScrollBar.vertical.position = 1.0 - scrollable.ScrollBar.vertical.size;
+            listLoader.item.list.currentIndex = listLoader.item.list.count - 1;
+            listLoader.item.ScrollBar.vertical.position = 1.0 - listLoader.item.ScrollBar.vertical.size;
             break;
         default:
-            list.decrementCurrentIndex();
+            listLoader.item.list.decrementCurrentIndex();
         }
         Keys.onReturnPressed: root.launch()
 
@@ -269,119 +288,129 @@ PanelWindow {
                 }
             }
 
-            ScrollView {
-                id: scrollable
+            Loader {
+                id: listLoader
+                active: root.active
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
 
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                ScrollBar.horizontal.interactive: false
-                ScrollBar.vertical.interactive: true
+                sourceComponent: Component {
+                    ScrollView {
+                        id: scrollable
+                        anchors.fill: parent
+                        clip: true
 
-                ListView {
-                    id: list
-                    model: root.visibleEntries
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                        ScrollBar.horizontal.interactive: false
+                        ScrollBar.vertical.interactive: true
 
-                    delegate: Rectangle {
-                        id: card
+                        property alias list: list
 
-                        required property DesktopEntry modelData
-                        required property int index
+                        ListView {
+                            id: list
+                            model: root.visibleEntries
 
-                        width: list.width
-                        height: 60
-                        radius: 20
-                        color: index === list.currentIndex ? "#0fffffff" : "transparent"
+                            delegate: Rectangle {
+                                id: card
 
-                        RowLayout {
-                            anchors.fill: parent
-                            spacing: 0
+                                required property DesktopEntry modelData
+                                required property int index
 
-                            Item {
-                                Layout.fillHeight: true
-                                implicitWidth: height
-                                Layout.margins: 8
+                                width: list.width
+                                height: 60
+                                radius: 20
+                                color: index === list.currentIndex ? "#0fffffff" : "transparent"
 
-                                Image {
-                                    id: appIcon
+                                RowLayout {
                                     anchors.fill: parent
-                                    fillMode: Image.PreserveAspectFit
+                                    spacing: 0
 
-                                    property int sourceIndex: 0
-                                    property var iconSources: [`/usr/share/pixmaps/${card.modelData.icon}`, `/usr/share/icons/hicolor/scalable/apps/${card.modelData.icon}.svg`, `/usr/share/icons/hicolor/32x32/apps/${card.modelData.icon}`]
+                                    Item {
+                                        Layout.fillHeight: true
+                                        implicitWidth: height
+                                        Layout.margins: 8
 
-                                    source: iconSources[sourceIndex]
-                                    asynchronous: true
-                                    onStatusChanged: {
-                                        if (status === Image.Error) {
-                                            if (sourceIndex < iconSources.length - 1)
-                                                sourceIndex = sourceIndex + 1;
-                                            else
-                                                visible = false;
+                                        Image {
+                                            id: appIcon
+                                            anchors.fill: parent
+                                            fillMode: Image.PreserveAspectFit
+
+                                            property int sourceIndex: 0
+                                            property var iconSources: [`/usr/share/pixmaps/${card.modelData.icon}`, `/usr/share/icons/hicolor/scalable/apps/${card.modelData.icon}.svg`, `/usr/share/icons/hicolor/32x32/apps/${card.modelData.icon}`]
+
+                                            source: iconSources[sourceIndex]
+                                            asynchronous: true
+                                            onStatusChanged: {
+                                                if (status === Image.Error) {
+                                                    if (sourceIndex < iconSources.length - 1)
+                                                        sourceIndex = sourceIndex + 1;
+                                                    else
+                                                        visible = false;
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            radius: 20
+                                            color: "#0fffffff"
+                                            anchors.fill: parent
+                                            visible: !appIcon.visible
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: card.modelData.name.slice(0, 1).toUpperCase()
+                                                font.family: "Inter"
+                                                font.pixelSize: 20
+                                                font.weight: Font.DemiBold
+                                                color: "#ffffff"
+                                            }
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: card.modelData.name ?? "Unknown"
+                                            font.family: "Inter"
+                                            font.pixelSize: 16
+                                            font.weight: Font.Medium
+                                            color: "#ffffff"
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: card.modelData.comment || card.modelData.genericName || card.modelData.execString || "Launch"
+                                            font.family: "Inter"
+                                            font.pixelSize: 12
+                                            color: "#ffffff"
+                                            elide: Text.ElideRight
                                         }
                                     }
                                 }
 
-                                Rectangle {
-                                    radius: 20
-                                    color: "#0fffffff"
-                                    anchors.fill: parent
-                                    visible: !appIcon.visible
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: card.modelData.name.slice(0, 1).toUpperCase()
-                                        font.family: "Inter"
-                                        font.pixelSize: 20
-                                        font.weight: Font.DemiBold
-                                        color: "#ffffff"
+                                TapHandler {
+                                    cursorShape: Qt.PointingHandCursor
+                                    onTapped: {
+                                        root.launch();
                                     }
                                 }
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: card.modelData.name ?? "Unknown"
-                                    font.family: "Inter"
-                                    font.pixelSize: 16
-                                    font.weight: Font.Medium
-                                    color: "#ffffff"
-                                    elide: Text.ElideRight
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: card.modelData.comment || card.modelData.genericName || card.modelData.execString || "Launch"
-                                    font.family: "Inter"
-                                    font.pixelSize: 12
-                                    color: "#ffffff"
-                                    elide: Text.ElideRight
-                                }
+                                //                 MouseArea {
+                                //                     anchors.fill: parent
+                                //                     hoverEnabled: true
+                                //                     cursorShape: Qt.PointingHandCursor
+                                //                     onEntered: root.selectedIndex = card.index
+                                //                     onClicked: {
+                                //                         card.modelData.execute();
+                                //                         root.close();
+                                //                     }
+                                //                 }
                             }
                         }
-
-                        TapHandler {
-                            cursorShape: Qt.PointingHandCursor
-                            onTapped: {
-                                root.launch();
-                            }
-                        }
-                        //                 MouseArea {
-                        //                     anchors.fill: parent
-                        //                     hoverEnabled: true
-                        //                     cursorShape: Qt.PointingHandCursor
-                        //                     onEntered: root.selectedIndex = card.index
-                        //                     onClicked: {
-                        //                         card.modelData.execute();
-                        //                         root.close();
-                        //                     }
-                        //                 }
                     }
                 }
             }

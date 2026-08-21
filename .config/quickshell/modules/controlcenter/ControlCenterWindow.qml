@@ -235,8 +235,6 @@ PanelWindow {
                     }
                 }
             }
-            // Component.onCompleted {
-            // }
 
             ScrollView {
                 id: scrollable

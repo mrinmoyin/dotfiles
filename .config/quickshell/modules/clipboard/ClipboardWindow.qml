@@ -11,6 +11,7 @@ import "../../services"
 
 PanelWindow {
     id: root
+    visible: active
 
     readonly property bool active: ShellState.clipboard
 
@@ -48,7 +49,7 @@ PanelWindow {
     }
 
     function copy(): void {
-        Quickshell.execDetached(["/bin/sh", "-c", `wl-copy ${list.currentItem.modelData.split("\t")[1]}`]);
+        Quickshell.execDetached(["/bin/sh", "-c", `wl-copy ${listLoader.item.list.currentItem.modelData.split("\t")[1]}`]);
         close();
     }
 
@@ -94,21 +95,21 @@ PanelWindow {
         Keys.onEscapePressed: root.close()
         // Keys.onDownPressed: list.incrementCurrentIndex()
         // Keys.onUpPressed: list.decrementCurrentIndex()
-        Keys.onDownPressed: switch (list.currentIndex) {
-        case list.count - 1:
-            list.currentIndex = 0;
-            scrollable.ScrollBar.vertical.position = 0.0;
+        Keys.onDownPressed: switch (listLoader.item.list.currentIndex) {
+        case listLoader.item.list.count - 1:
+            listLoader.item.list.currentIndex = 0;
+            listLoader.item.ScrollBar.vertical.position = 0.0;
             break;
         default:
-            list.incrementCurrentIndex();
+            listLoader.item.list.incrementCurrentIndex();
         }
-        Keys.onUpPressed: switch (list.currentIndex) {
+        Keys.onUpPressed: switch (listLoader.item.list.currentIndex) {
         case 0:
-            list.currentIndex = list.count - 1;
-            scrollable.ScrollBar.vertical.position = 1.0 - scrollable.ScrollBar.vertical.size;
+            listLoader.item.list.currentIndex = listLoader.item.list.count - 1;
+            listLoader.item.ScrollBar.vertical.position = 1.0 - listLoader.item.ScrollBar.vertical.size;
             break;
         default:
-            list.decrementCurrentIndex();
+            listLoader.item.list.decrementCurrentIndex();
         }
         Keys.onReturnPressed: {
             root.copy();
@@ -269,93 +270,103 @@ PanelWindow {
                 }
             }
 
-            ScrollView {
-                id: scrollable
+            Loader {
+                id: listLoader
+                active: root.active
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                clip: true
 
-                ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                ScrollBar.horizontal.interactive: false
-                ScrollBar.vertical.interactive: true
+                sourceComponent: Component {
+                    ScrollView {
+                        id: scrollable
+                        anchors.fill: parent
+                        clip: true
 
-                ListView {
-                    id: list
-                    model: root.visibleEntries
-                    anchors.fill: parent
-                    // Layout.fillWidth: true
-                    // Layout.fillHeight: true
-                    clip: true
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                        ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                        ScrollBar.horizontal.interactive: false
+                        ScrollBar.vertical.interactive: true
 
-                    delegate: Rectangle {
-                        id: card
+                        property alias list: list
 
-                        required property string modelData
-                        required property int index
-
-                        width: list.width
-                        height: 60
-                        radius: 20
-                        color: list.currentIndex === index ? "#0fffffff" : "transparent"
-
-                        RowLayout {
+                        ListView {
+                            id: list
+                            model: root.visibleEntries
                             anchors.fill: parent
-                            spacing: 0
+                            // Layout.fillWidth: true
+                            // Layout.fillHeight: true
+                            clip: true
 
-                            Item {
-                                Layout.fillHeight: true
-                                implicitWidth: height
-                                Layout.margins: 8
+                            delegate: Rectangle {
+                                id: card
 
-                                Rectangle {
-                                    radius: 20
-                                    color: "#0fffffff"
+                                required property string modelData
+                                required property int index
+
+                                width: list.width
+                                height: 60
+                                radius: 20
+                                color: list.currentIndex === index ? "#0fffffff" : "transparent"
+
+                                RowLayout {
                                     anchors.fill: parent
+                                    spacing: 0
 
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰦨"
-                                        font.family: "Inter"
-                                        font.pixelSize: 20
-                                        font.weight: Font.DemiBold
-                                        color: "#ffffff"
+                                    Item {
+                                        Layout.fillHeight: true
+                                        implicitWidth: height
+                                        Layout.margins: 8
+
+                                        Rectangle {
+                                            radius: 20
+                                            color: "#0fffffff"
+                                            anchors.fill: parent
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: "󰦨"
+                                                font.family: "Inter"
+                                                font.pixelSize: 20
+                                                font.weight: Font.DemiBold
+                                                color: "#ffffff"
+                                            }
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: card.modelData.split("\t")[1]
+                                            font.family: "Inter"
+                                            font.pixelSize: 16
+                                            font.weight: Font.Medium
+                                            color: "#ffffff"
+                                            elide: Text.ElideRight
+                                        }
                                     }
                                 }
-                            }
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 2
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: card.modelData.split("\t")[1]
-                                    font.family: "Inter"
-                                    font.pixelSize: 16
-                                    font.weight: Font.Medium
-                                    color: "#ffffff"
-                                    elide: Text.ElideRight
+                                TapHandler {
+                                    cursorShape: Qt.PointingHandCursor
+                                    onTapped: {
+                                        root.copy();
+                                    }
                                 }
+                                // MouseArea {
+                                //     anchors.fill: parent
+                                //     hoverEnabled: true
+                                //     cursorShape: Qt.PointingHandCursor
+                                //     onEntered: root.selectedIndex = card.index
+                                //     onClicked: {
+                                //         root.copy();
+                                //         root.close();
+                                //     }
+                                // }
                             }
                         }
-
-                        TapHandler {
-                            cursorShape: Qt.PointingHandCursor
-                            onTapped: {
-                                root.copy();
-                            }
-                        }
-                        // MouseArea {
-                        //     anchors.fill: parent
-                        //     hoverEnabled: true
-                        //     cursorShape: Qt.PointingHandCursor
-                        //     onEntered: root.selectedIndex = card.index
-                        //     onClicked: {
-                        //         root.copy();
-                        //         root.close();
-                        //     }
-                        // }
                     }
                 }
             }
