@@ -28,6 +28,7 @@ hl.bind(mainMod .. " + P", hl.dsp.global("quickshell:clipboard"))
 hl.bind(mainMod .. " + O", hl.dsp.global("quickshell:osd"))
 hl.bind(mainMod .. " + Q", hl.dsp.global("quickshell:logout"))
 hl.bind(mainMod .. " + slash", hl.dsp.global("quickshell:help"))
+-- hl.bind(mainMod .. " + SHIFT + B", hl.dsp.global("quickshell:testmode"))
 
 -- Media Controls
 hl.bind(mainMod .. " + ALT + RETURN", hl.dsp.exec_cmd("alacritty --title rmpc --command rmpc"))

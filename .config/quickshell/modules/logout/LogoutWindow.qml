@@ -1,17 +1,14 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Hyprland
 import Quickshell.Io
-import "../../components"
-import "../../controls"
 import "../../services"
 import "../../config"
 
 PanelWindow {
     id: root
-    visible: ShellState.logout
+    // visible: ShellState.logout
+    readonly property bool active: ShellState.logout
 
     anchors {
         top: true
@@ -21,12 +18,12 @@ PanelWindow {
     }
     exclusionMode: ExclusionMode.Ignore
 
-    implicitWidth: Math.min(1280, screen.width - 40)
-    implicitHeight: Math.min(720, screen.height - 40)
-    color: "transparent"
+    // implicitWidth: Math.min(1280, screen.width - 40)
+    // implicitHeight: Math.min(720, screen.height - 40)
+    color: "#01000000"
 
     screen: Quickshell.screens[0]
-    WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+    focusable: true
 
     property int selectedIndex: 0
 
@@ -52,13 +49,12 @@ PanelWindow {
     }
 
     FocusScope {
-        id: panelContent
         anchors.fill: parent
-
-        transformOrigin: Item.TopRight
-        scale: visible ? 1.0 : 0.5
-        opacity: visible ? 1.0 : 0.0
         focus: true
+
+        // transformOrigin: Item.TopRight
+        // scale: visible ? 1.0 : 0.5
+        // opacity: visible ? 1.0 : 0.0
 
         Keys.onUpPressed: if (root.selectedIndex > 2)
             root.selectedIndex = root.selectedIndex - 3
@@ -76,7 +72,7 @@ PanelWindow {
             onHoveredChanged: {
                 if (hovered)
                     closeTimer.stop();
-                else if (root.visible)
+                else if (root.active)
                     closeTimer.restart();
             }
         }
@@ -88,68 +84,69 @@ PanelWindow {
                 ShellState.logout = false
         }
 
-        Rectangle {
-            id: panel
+        RowLayout {
             anchors.fill: parent
-            radius: 20
-            color: "#0fffffff"
-            clip: true
+            anchors.margins: root.height / 4
+            // anchors.margins: root.height * 0.45
+            spacing: 20
 
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: root.implicitHeight * 0.45
-                spacing: 20
+            Repeater {
+                id: logoutList
+                model: logoutItems
 
-                Repeater {
-                    id: logoutList
-                    model: logoutItems
+                delegate: Rectangle {
+                    id: itemDelegate
 
-                    delegate: Rectangle {
-                        id: itemDelegate
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
+                    required property int index
+                    required property var modelData
+                    readonly property bool active: index === root.selectedIndex || mouseArea.containsMouse
 
-                        required property int index
-                        required property var modelData
-                        readonly property bool active: index === root.selectedIndex || mouseArea.containsMouse
+                    radius: 56
+                    color: active ? "#E3701B" : "#0fffffff"
 
-                        radius: 56
-                        color: active ? "#E3701B" : "#0fffffff"
+                    function exec(): void {
+                        if (itemDelegate.modelData.cmd !== "") {
+                            ShellState.logout = false;
+                            proc.running = true;
+                        }
+                    }
 
-                        function exec(): void {
-                            if (itemDelegate.modelData.cmd !== "") {
-                                ShellState.logout = false;
-                                proc.running = true;
+                    Process {
+                        id: proc
+                        command: ["/bin/sh", "-c", itemDelegate.modelData.cmd]
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: itemDelegate.exec()
+                    }
+
+                    Item {
+                        visible: icon.text !== ""
+                        anchors.centerIn: parent
+                        scale: itemDelegate.active ? 1.20 : 1
+                        implicitWidth: icon.width
+                        implicitHeight: icon.height
+
+                        Behavior on scale {
+                            NumberAnimation {
+                                duration: Config.appearence.animationDuration / 2 || 150
+                                // duration: 150
+                                easing.type: Easing.InOutCirc
                             }
-                        }
-
-                        Process {
-                            id: proc
-                            command: ["/bin/sh", "-c", itemDelegate.modelData.cmd]
-                        }
-
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: itemDelegate.exec()
                         }
 
                         Text {
-                            visible: text !== ""
-                            anchors.centerIn: parent
+                            id: icon
                             text: itemDelegate.modelData.icon
                             font.pixelSize: 156
                             color: "#ffffff"
-                            scale: itemDelegate.active ? 1.20 : 1
-
-                            Behavior on scale {
-                                NumberAnimation {
-                                    duration: Config.appearence.animationDuration || 150
-                                }
-                            }
                         }
                     }
                 }

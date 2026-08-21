@@ -1,124 +1,85 @@
 import QtQuick
 import QtQuick.Effects
 import QtQuick.Shapes
-import Quickshell
-import Quickshell.Wayland
 import "./bar"
 
-Scope {
+Item {
     id: root
 
-    // BarWindow {
-    //     color: "#01000000"
-    // }
+    height: 54
 
-    property ShellScreen screen: Quickshell.screens[0]
+    MultiEffect {
+        id: panel
+        source: background
+        anchors.fill: background
+        maskEnabled: true
+        maskSource: mask
 
-    PanelWindow {
-        anchors {
-            top: true
-            left: true
-            right: true
-        }
-        // exclusionMode: ExclusionMode.Normal
-        // exclusionMode: ExclusionMode.Ignore
+        // layer.smooth: true
 
-        implicitWidth: screen.width
-        implicitHeight: 34
-        color: "transparent"
-
-        screen: root.screen
-        WlrLayershell.layer: WlrLayer.Bottom
+        maskThresholdMin: 0.5
+        maskSpreadAtMin: 1.0
     }
 
-    PanelWindow {
-        anchors {
-            top: true
-            left: true
-            right: true
-        }
-        exclusionMode: ExclusionMode.Ignore
-        aboveWindows: false
+    Rectangle {
+        id: background
+        anchors.fill: parent
+        visible: false
+        // smooth: true
+        color: "#01000000"
+    }
 
-        implicitWidth: screen.width
-        implicitHeight: 54
-        color: "transparent"
+    Shape {
+        id: mask
+        anchors.fill: background
+        antialiasing: true
 
-        screen: root.screen
+        visible: false
+        layer.enabled: true
 
-        MultiEffect {
-            id: panel
-            source: background
-            anchors.fill: background
-            maskEnabled: true
-            maskSource: mask
+        preferredRendererType: Shape.CurveRenderer
 
-            // layer.smooth: true
+        ShapePath {
+            strokeColor: "transparent"
 
-            maskThresholdMin: 0.5
-            maskSpreadAtMin: 1.0
-        }
+            startX: 0
+            startY: 0
 
-        Rectangle {
-            id: background
-            anchors.fill: parent
-            visible: false
-            // smooth: true
-            color: "#01000000"
-        }
+            PathLine {
+                x: 0
+                y: mask.height
+            }
+            PathArc {
+                radiusX: 20
+                radiusY: 20
+                x: 20
+                y: mask.height - 20
+            }
 
-        Shape {
-            id: mask
-            anchors.fill: background
-            antialiasing: true
-
-            visible: false
-            layer.enabled: true
-
-            preferredRendererType: Shape.CurveRenderer
-
-            ShapePath {
-                strokeColor: "transparent"
-
-                startX: 0
-                startY: 0
-
-                PathLine {
-                    x: 0
-                    y: mask.height
-                }
-                PathArc {
-                    radiusX: 20
-                    radiusY: 20
-                    x: 20
-                    y: mask.height - 20
-                }
-
-                PathLine {
-                    x: mask.width - 20
-                    y: mask.height - 20
-                }
-                PathArc {
-                    radiusX: 20
-                    radiusY: 20
-                    x: mask.width
-                    y: mask.height
-                }
-                PathLine {
-                    x: mask.width
-                    y: 0
-                }
-                PathLine {
-                    x: 0
-                    y: 0
-                }
+            PathLine {
+                x: mask.width - 20
+                y: mask.height - 20
+            }
+            PathArc {
+                radiusX: 20
+                radiusY: 20
+                x: mask.width
+                y: mask.height
+            }
+            PathLine {
+                x: mask.width
+                y: 0
+            }
+            PathLine {
+                x: 0
+                y: 0
             }
         }
+    }
 
-        BarContent {
-            anchors.top: background.top
-            anchors.left: background.left
-            anchors.right: background.right
-        }
+    BarContent {
+        anchors.top: background.top
+        anchors.left: background.left
+        anchors.right: background.right
     }
 }

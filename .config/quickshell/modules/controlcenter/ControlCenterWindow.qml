@@ -17,10 +17,9 @@ PanelWindow {
     id: root
 
     readonly property bool active: ShellState.controlcenter
-    onActiveChanged: {
-        if (active)
-            playersList.currentIndex = MprisService.playerIndex;
-    }
+
+    onActiveChanged: if (active)
+        inAnimation.start()
 
     HyprlandFocusGrab {
         active: root.active
@@ -31,26 +30,52 @@ PanelWindow {
         right: true
     }
 
-    margins {
-        right: active ? 0 : -width
-    }
-
     color: "transparent"
     implicitWidth: 360
-    implicitHeight: Math.min(860, screen.height - 40)
+    implicitHeight: 860
 
     screen: Quickshell.screens[0]
     exclusionMode: ExclusionMode.Normal
     // WlrLayershell.keyboardFocus: active ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     function close(): void {
-        ShellState.controlcenter = false;
-        scrollable.contentItem.contentY = 0;
+        outAnimation.start();
     }
 
     FocusScope {
-        anchors.fill: parent
+        id: scope
         focus: true
+
+        anchors {
+            top: parent.top
+            right: parent.right
+            bottom: parent.bottom
+        }
+        width: 0
+
+        PropertyAnimation {
+            id: inAnimation
+            target: scope
+            property: "width"
+            alwaysRunToEnd: true
+            to: root.width
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+        }
+        PropertyAnimation {
+            id: outAnimation
+            target: scope
+            property: "width"
+            alwaysRunToEnd: true
+            to: 0
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+            onFinished: {
+                ShellState.controlcenter = false;
+                scrollable.contentItem.contentY = 0;
+                playersList.currentIndex = MprisService.playerIndex;
+            }
+        }
 
         Keys.onEscapePressed: root.close()
 
@@ -58,27 +83,15 @@ PanelWindow {
             onHoveredChanged: {
                 if (hovered) {
                     closeTimer.stop();
-                } else {
-                    if (root.active)
-                        closeTimer.restart();
+                } else if (root.active) {
+                    closeTimer.restart();
                 }
             }
         }
-        // MouseArea {
-        //     anchors.fill: background
-        //     hoverEnabled: true
-        //     onEntered: {
-        //         closeTimer.stop();
-        //     }
-        //     onExited: {
-        //         if (root.active && !containsPress)
-        //             closeTimer.restart();
-        //     }
-        // }
 
         Timer {
             id: closeTimer
-            interval: 500
+            interval: Config.appearence.timeout
             onTriggered: root.close()
         }
 
@@ -208,11 +221,17 @@ PanelWindow {
 
                     IconButton {
                         icon: "󰒓"
-                        onClicked: ShellState.wallpaper = !ShellState.wallpaper
+                        onClicked: {
+                            root.close();
+                            ShellState.wallpaper = !ShellState.wallpaper;
+                        }
                     }
                     IconButton {
                         icon: "󰐥"
-                        onClicked: ShellState.logout = !ShellState.logout
+                        onClicked: {
+                            root.close();
+                            ShellState.logout = !ShellState.logout;
+                        }
                     }
                 }
             }

@@ -5,7 +5,6 @@ import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Wayland
 import "../../config"
 import "../../controls"
 import "../../services"
@@ -14,6 +13,9 @@ PanelWindow {
     id: root
 
     readonly property bool active: ShellState.launcher
+
+    onActiveChanged: if (active)
+        inAnimation.start()
 
     HyprlandFocusGrab {
         active: root.active
@@ -24,17 +26,12 @@ PanelWindow {
         bottom: true
     }
 
-    margins {
-        bottom: active ? 0 : -height
-    }
-
     color: "transparent"
-    implicitWidth: Math.min(540, screen.width - 40)
-    implicitHeight: Math.min(640, screen.height - 40)
+    implicitWidth: 540
+    implicitHeight: 640
 
     screen: Quickshell.screens[0]
     exclusionMode: ExclusionMode.Normal
-    // WlrLayershell.keyboardFocus: active ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     property string query: ""
     readonly property list<DesktopEntry> apps: DesktopEntries.applications.values ?? []
@@ -62,38 +59,42 @@ PanelWindow {
     }
 
     function close(): void {
-        ShellState.launcher = false;
-        root.query = "";
+        outAnimation.start();
     }
 
-    // Loader {
-    //     active: root.active
-    //     focus: true
-    //     anchors.fill: parent
-    //     sourceComponent: LauncherContent {}
-    //     states: [
-    //         State {
-    //             name: "active"
-    //             when: root.active === true
-    //         }
-    //     ]
-    //     transitions: [
-    //         Transition {
-    //             from: "active"
-    //             to: ""
-    //
-    //             NumberAnimation {
-    //                 property: root.margins.bottom
-    //                 target: root.active
-    //                 duration: 1000
-    //             }
-    //         }
-    //     ]
-    // }
-
     FocusScope {
-        anchors.fill: parent
+        id: scope
         focus: true
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+        height: 0
+
+        PropertyAnimation {
+            id: inAnimation
+            target: scope
+            property: "height"
+            alwaysRunToEnd: true
+            to: root.height
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+        }
+        PropertyAnimation {
+            id: outAnimation
+            target: scope
+            property: "height"
+            alwaysRunToEnd: true
+            to: 0
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+            onFinished: {
+                ShellState.launcher = false;
+                root.query = "";
+            }
+        }
 
         Keys.onEscapePressed: root.close()
         Keys.onDownPressed: switch (list.currentIndex) {
@@ -126,7 +127,7 @@ PanelWindow {
 
         Timer {
             id: closeTimer
-            interval: 500
+            interval: Config.appearence.timeout
             onTriggered: if (!hoverHandler.hovered)
                 root.close()
         }

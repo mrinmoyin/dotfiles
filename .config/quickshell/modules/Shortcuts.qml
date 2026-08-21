@@ -6,26 +6,28 @@ Scope {
     id: root
 
     GlobalShortcut {
-        name: "launcher"
-        description: "Toggle application launcher"
-
-        onPressed: {
-            if (ShellState.clipboard)
-                ShellState.clipboard = false;
-            ShellState.launcher = !ShellState.launcher;
-        }
-    }
-
-    GlobalShortcut {
         name: "controlcenter"
         description: "Toggle control center"
 
         onPressed: {
             if (ShellState.osd)
                 ShellState.osd = false;
-            if (NotificationService.onScreenNotificationsModel.count)
+            if (ShellState.osn)
                 NotificationService.onScreenNotificationsModel.clear();
-            ShellState.controlcenter = !ShellState.controlcenter;
+            if (!ShellState.controlcenter)
+                ShellState.controlcenter = true;
+        }
+    }
+
+    GlobalShortcut {
+        name: "launcher"
+        description: "Toggle application launcher"
+
+        onPressed: {
+            if (ShellState.clipboard)
+                ShellState.clipboard = false;
+            if (!ShellState.launcher)
+                ShellState.launcher = true;
         }
     }
 
@@ -36,7 +38,8 @@ Scope {
         onPressed: {
             if (ShellState.launcher)
                 ShellState.launcher = false;
-            ShellState.clipboard = !ShellState.clipboard;
+            if (!ShellState.clipboard)
+                ShellState.clipboard = true;
         }
     }
 
@@ -49,15 +52,6 @@ Scope {
                 ShellState.osd = !ShellState.osd;
         }
     }
-
-    // GlobalShortcut {
-    //     name: "help"
-    //     description: "Toggle keybinds help"
-    //
-    //     onPressed: {
-    //         ShellState.help = !ShellState.help;
-    //     }
-    // }
 
     GlobalShortcut {
         name: "help"
@@ -85,8 +79,7 @@ Scope {
         description: "Toggle launcher, osd, controlcenter"
 
         onPressed: {
-            console.log("showcase triggered");
-            ShellState.launcher = ShellState.osd = ShellState.controlcenter = !(ShellState.launcher || ShellState.osd || ShellState.controlcenter);
+            ShellState.launcher = ShellState.mediaplayer = ShellState.controlcenter = !(ShellState.launcher || ShellState.mediaplayer || ShellState.controlcenter);
         }
     }
 }

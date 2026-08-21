@@ -136,8 +136,8 @@ RowLayout {
                     anchors.fill: parent
                     clip: true
                     highlightRangeMode: ListView.StrictlyEnforceRange
-                    preferredHighlightBegin: height / 2 - currentItem.implicitHeight / 2
-                    preferredHighlightEnd: height / 2 + currentItem.implicitHeight / 2
+                    preferredHighlightBegin: height / 2 - currentItem.height / 2
+                    preferredHighlightEnd: height / 2 + currentItem.height / 2
                     // preferredHighlightBegin: height / 2 - 8
                     // preferredHighlightEnd: height / 2 + 8
                     interactive: false

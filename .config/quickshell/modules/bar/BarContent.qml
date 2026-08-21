@@ -56,7 +56,7 @@ Item {
         Clock {}
         BarButton {
             icon: ""
-            onClicked: ShellState.controlcenter = !ShellState.controlcenter
+            onClicked: ShellState.controlcenter = true
         }
     }
 }
