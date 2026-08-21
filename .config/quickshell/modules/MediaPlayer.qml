@@ -60,7 +60,7 @@ Item {
 
     Timer {
         id: closeTimer
-        interval: 500
+        interval: Config.appearence.timeout
         onTriggered: if (!hoverHandler.hovered)
             outAnimation.start()
     }

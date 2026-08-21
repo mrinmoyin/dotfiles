@@ -6,15 +6,53 @@ Scope {
     id: root
 
     GlobalShortcut {
+        name: "controlcenter"
+        description: "Toggle control center"
+
+        onPressed: {
+            if (ShellState.osd)
+                ShellState.osd = false;
+            if (ShellState.osn)
+                NotificationService.onScreenNotificationsModel.clear();
+            if (!ShellState.controlcenter)
+                ShellState.controlcenter = true;
+        }
+    }
+
+    GlobalShortcut {
         name: "launcher"
         description: "Toggle application launcher"
 
         onPressed: {
             if (ShellState.clipboard)
                 ShellState.clipboard = false;
-            ShellState.launcher = !ShellState.launcher;
+            if (!ShellState.launcher)
+                ShellState.launcher = true;
         }
     }
+
+    GlobalShortcut {
+        name: "clipboard"
+        description: "Toggle clipboard"
+
+        onPressed: {
+            if (ShellState.launcher)
+                ShellState.launcher = false;
+            if (!ShellState.clipboard)
+                ShellState.clipboard = true;
+        }
+    }
+
+    // GlobalShortcut {
+    //     name: "launcher"
+    //     description: "Toggle application launcher"
+    //
+    //     onPressed: {
+    //         if (ShellState.clipboard)
+    //             ShellState.clipboard = false;
+    //         ShellState.launcher = !ShellState.launcher;
+    //     }
+    // }
 
     // GlobalShortcut {
     //     name: "controlcenter"
@@ -29,16 +67,16 @@ Scope {
     //     }
     // }
 
-    GlobalShortcut {
-        name: "clipboard"
-        description: "Toggle clipboard"
-
-        onPressed: {
-            if (ShellState.launcher)
-                ShellState.launcher = false;
-            ShellState.clipboard = !ShellState.clipboard;
-        }
-    }
+    // GlobalShortcut {
+    //     name: "clipboard"
+    //     description: "Toggle clipboard"
+    //
+    //     onPressed: {
+    //         if (ShellState.launcher)
+    //             ShellState.launcher = false;
+    //         ShellState.clipboard = !ShellState.clipboard;
+    //     }
+    // }
 
     GlobalShortcut {
         name: "osd"

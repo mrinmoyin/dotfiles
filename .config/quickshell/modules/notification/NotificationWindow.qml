@@ -6,7 +6,6 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Services.Notifications
-import "../../components"
 import "../../services"
 import "../../config"
 import "../notification"
@@ -14,30 +13,20 @@ import "../notification"
 PanelWindow {
     id: root
 
+    readonly property bool active: ShellState.osn
+
     anchors {
         // top: true
         right: true
         bottom: true
     }
 
-    // margins {
-    // top: active ? 0 : (-height + -34)
-    // top: 0
-    // }
-
     // readonly property bool active: NotificationService.onScreenNotificationsModel.count > 0
-    visible: NotificationService.onScreenNotificationsModel.count > 0
+    // visible: NotificationService.onScreenNotificationsModel.count > 0
     implicitWidth: 360
     implicitHeight: content.height + 52
     // implicitHeight: content.height + (content.anchors.topMargin * 2) + 20
     color: "transparent"
-
-    // height: active ? content.height + 52 : 0
-    // Behavior on height {
-    //     NumberAnimation {
-    //         duration: 500
-    //     }
-    // }
 
     screen: Quickshell.screens[0]
 

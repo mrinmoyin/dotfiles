@@ -16,6 +16,7 @@ Singleton {
         })
 
     readonly property var appearence: ({
-            animationDuration: 500
+            animationDuration: 250,
+            timeout: 0
         })
 }

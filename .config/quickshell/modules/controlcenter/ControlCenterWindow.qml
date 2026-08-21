@@ -18,10 +18,8 @@ PanelWindow {
 
     readonly property bool active: ShellState.controlcenter
 
-    onActiveChanged: {
-        if (active)
-            inAnimation.start();
-    }
+    onActiveChanged: if (active)
+        inAnimation.start()
 
     HyprlandFocusGrab {
         active: root.active
@@ -31,10 +29,6 @@ PanelWindow {
     anchors {
         right: true
     }
-
-    // margins {
-    //     right: active ? 0 : -width
-    // }
 
     color: "transparent"
     implicitWidth: 360
@@ -59,14 +53,12 @@ PanelWindow {
         }
         width: 0
 
-        Keys.onEscapePressed: root.close()
-
         PropertyAnimation {
             id: inAnimation
             target: scope
             property: "width"
             alwaysRunToEnd: true
-            to: 360
+            to: root.width
             duration: Config.appearence.animationDuration || 500
             easing.type: Easing.InOutCirc
         }
@@ -85,20 +77,21 @@ PanelWindow {
             }
         }
 
+        Keys.onEscapePressed: root.close()
+
         HoverHandler {
             onHoveredChanged: {
                 if (hovered) {
                     closeTimer.stop();
-                } else {
-                    if (root.active)
-                        closeTimer.restart();
+                } else if (root.active) {
+                    closeTimer.restart();
                 }
             }
         }
 
         Timer {
             id: closeTimer
-            interval: 500
+            interval: Config.appearence.timeout
             onTriggered: root.close()
         }
 

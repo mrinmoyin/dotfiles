@@ -4,7 +4,6 @@ import QtQuick.Shapes
 import QtQuick.Controls as QQC
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Wayland
 import "../../services"
 import "../../config"
 
@@ -61,7 +60,7 @@ PanelWindow {
 
         Timer {
             id: closeTimer
-            interval: 500
+            interval: Config.appearence.timeout
             onTriggered: if (!hoverHandler.hovered)
                 root.close()
         }

@@ -5,6 +5,7 @@ import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
+import "../../config"
 import "../../controls"
 import "../../services"
 
@@ -12,12 +13,10 @@ PanelWindow {
     id: root
 
     readonly property bool active: ShellState.clipboard
-    onActiveChanged: {
-        if (active) {
-            ClipboardService.refresh();
-            root.query = "";
-            list.currentIndex = 0;
-        }
+
+    onActiveChanged: if (active) {
+        inAnimation.start();
+        ClipboardService.refresh();
     }
 
     HyprlandFocusGrab {
@@ -29,13 +28,9 @@ PanelWindow {
         bottom: true
     }
 
-    margins {
-        bottom: active ? 0 : -height
-    }
-
     color: "transparent"
-    implicitWidth: Math.min(540, screen.width - 40)
-    implicitHeight: Math.min(640, screen.height - 40)
+    implicitWidth: 540
+    implicitHeight: 640
 
     screen: Quickshell.screens[0]
     exclusionMode: ExclusionMode.Normal
@@ -58,14 +53,43 @@ PanelWindow {
     }
 
     function close(): void {
-        ShellState.clipboard = false;
-        // root.query = "";
-        // list.currentIndex = 0;
+        outAnimation.start();
     }
 
     FocusScope {
-        anchors.fill: parent
+        id: scope
         focus: true
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            bottom: parent.bottom
+        }
+        height: 0
+
+        PropertyAnimation {
+            id: inAnimation
+            target: scope
+            property: "height"
+            alwaysRunToEnd: true
+            to: root.height
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+        }
+        PropertyAnimation {
+            id: outAnimation
+            target: scope
+            property: "height"
+            alwaysRunToEnd: true
+            to: 0
+            duration: Config.appearence.animationDuration || 500
+            easing.type: Easing.InOutCirc
+            onFinished: {
+                ShellState.clipboard = false;
+                root.query = "";
+                list.currentIndex = 0;
+            }
+        }
 
         Keys.onEscapePressed: root.close()
         // Keys.onDownPressed: list.incrementCurrentIndex()
@@ -103,7 +127,7 @@ PanelWindow {
 
         Timer {
             id: closeTimer
-            interval: 500
+            interval: Config.appearence.timeout
             onTriggered: if (!hoverHandler.hovered)
                 root.close()
         }

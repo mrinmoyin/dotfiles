@@ -1,6 +1,5 @@
 import QtQuick
 import Quickshell
-import Quickshell.Hyprland
 import "./modules/notification"
 import "./modules/help"
 import "./modules/osd"
@@ -14,6 +13,8 @@ import "./modules"
 import "./services"
 
 ShellRoot {
+    id: root
+
     Shortcuts {}
     Gestures {}
 
@@ -28,72 +29,72 @@ ShellRoot {
         height: 34
         color: "transparent"
 
-        screen: root.screen
+        screen: Quickshell.screens[0]
         aboveWindows: false
     }
 
     Loader {
         id: controlCenterLoader
         active: ShellState.controlcenter
-        ControlCenterWindow {
-            id: controlCenter
-        }
-    }
-    GlobalShortcut {
-        name: "controlcenter"
-        description: "Toggle control center"
-
-        onPressed: {
-            if (ShellState.osd)
-                ShellState.osd = false;
-            if (ShellState.osn)
-                NotificationService.onScreenNotificationsModel.clear();
-            if (!ShellState.controlcenter)
-                ShellState.controlcenter = true;
-            else
-                controlCenter.close();
+        sourceComponent: Component {
+            ControlCenterWindow {}
         }
     }
 
-    // Loader {
-    //     active: ShellState.osn
-    // }
-    NotificationWindow {}
+    Loader {
+        active: ShellState.osn
+        sourceComponent: Component {
+            NotificationWindow {}
+        }
+    }
 
-    // Loader {
-    //     active: ShellState.osd
-    // }
-    OsdWindow {}
+    Loader {
+        active: ShellState.osd
+        sourceComponent: Component {
+            OsdWindow {}
+        }
+    }
 
-    // Loader {
-    //     active: ShellState.launcher
-    // }
-    LauncherWindow {}
+    Loader {
+        active: ShellState.launcher
+        sourceComponent: Component {
+            LauncherWindow {}
+        }
+    }
 
-    // Loader {
-    //     active: ShellState.clipboard
-    // }
-    ClipboardWindow {}
+    Loader {
+        active: ShellState.clipboard
+        sourceComponent: Component {
+            ClipboardWindow {}
+        }
+    }
 
-    // Loader {
-    //     active: ShellState.help
-    // }
-    HelpWindow {}
-    // Loader {
-    //     active: ShellState.wallpaper
-    // }
-    WallpaperSelectorWindow {}
-    // Loader {
-    //     active: ShellState.logout
-    // }
-    LogoutWindow {}
-    // Loader {
-    //     active: ShellState.mpd
-    // }
-    MpdWindow {}
+    Loader {
+        active: ShellState.help
+        sourceComponent: Component {
+            HelpWindow {}
+        }
+    }
+    Loader {
+        active: ShellState.wallpaper
+        sourceComponent: Component {
+            WallpaperSelectorWindow {}
+        }
+    }
+    Loader {
+        active: ShellState.logout
+        sourceComponent: Component {
+            LogoutWindow {}
+        }
+    }
+    Loader {
+        active: ShellState.mpd
+        sourceComponent: Component {
+            MpdWindow {}
+        }
+    }
 
     PanelWindow {
-        id: root
         visible: ShellState.testmode
         anchors {
             top: true
@@ -102,14 +103,10 @@ ShellRoot {
             bottom: true
         }
         exclusionMode: ExclusionMode.Ignore
-        // aboveWindows: false
-        // aboveWindows: ShellState.activeFocus
         aboveWindows: ShellState.mediaplayer
         focusable: true
-        // implicitHeight: 600
 
         color: "transparent"
-        // color: "#0fffffff"
 
         screen: Quickshell.screens[0]
 
@@ -123,66 +120,15 @@ ShellRoot {
             anchors.right: parent.right
         }
 
-        // Loader {
-        //     active: ShellState.controlcenter
-        //     anchors.fill: parent
-        //
-        //     ControlCenter {
-        //         anchors.right: parent.right
-        //         anchors.verticalCenter: parent.verticalCenter
-        //     }
-        // }
-
         Loader {
             active: ShellState.mediaplayer
-            anchors.fill: parent
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 34
 
-            MediaPlayer {
-                anchors.top: parent.top
-                anchors.topMargin: 34
-                anchors.horizontalCenter: parent.horizontalCenter
+            sourceComponent: Component {
+                MediaPlayer {}
             }
         }
-
-        // Loader {
-        //     active: ShellState.osd
-        //     anchors.fill: parent
-        //
-        //     OSD {
-        //         anchors.right: parent.right
-        //         anchors.verticalCenter: parent.verticalCenter
-        //     }
-        // }
-
-        // Loader {
-        //     active: ShellState.osn
-        //     anchors.fill: parent
-        //
-        //     Notification {
-        //         anchors.top: parent.top
-        //         anchors.right: parent.right
-        //         anchors.topMargin: 34
-        //     }
-        // }
-
-        // Loader {
-        //     active: ShellState.launcher
-        //     anchors.fill: parent
-        //
-        //     Launcher {
-        //         anchors.bottom: parent.bottom
-        //         anchors.horizontalCenter: parent.horizontalCenter
-        //     }
-        // }
-
-        // Loader {
-        //     active: ShellState.clipboard
-        //     anchors.fill: parent
-        //
-        //     Clipboard {
-        //         anchors.bottom: parent.bottom
-        //         anchors.horizontalCenter: parent.horizontalCenter
-        //     }
-        // }
     }
 }
