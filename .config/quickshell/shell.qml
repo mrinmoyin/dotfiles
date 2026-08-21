@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Hyprland
 import "./modules/notification"
 import "./modules/help"
 import "./modules/osd"
@@ -31,10 +32,28 @@ ShellRoot {
         aboveWindows: false
     }
 
-    // Loader {
-    //     active: ShellState.controlcenter
-    // }
-    ControlCenterWindow {}
+    Loader {
+        id: controlCenterLoader
+        active: ShellState.controlcenter
+        ControlCenterWindow {
+            id: controlCenter
+        }
+    }
+    GlobalShortcut {
+        name: "controlcenter"
+        description: "Toggle control center"
+
+        onPressed: {
+            if (ShellState.osd)
+                ShellState.osd = false;
+            if (ShellState.osn)
+                NotificationService.onScreenNotificationsModel.clear();
+            if (!ShellState.controlcenter)
+                ShellState.controlcenter = true;
+            else
+                controlCenter.close();
+        }
+    }
 
     // Loader {
     //     active: ShellState.osn

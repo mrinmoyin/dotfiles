@@ -16,18 +16,18 @@ Scope {
         }
     }
 
-    GlobalShortcut {
-        name: "controlcenter"
-        description: "Toggle control center"
-
-        onPressed: {
-            if (ShellState.osd)
-                ShellState.osd = false;
-            if (NotificationService.onScreenNotificationsModel.count)
-                NotificationService.onScreenNotificationsModel.clear();
-            ShellState.controlcenter = !ShellState.controlcenter;
-        }
-    }
+    // GlobalShortcut {
+    //     name: "controlcenter"
+    //     description: "Toggle control center"
+    //
+    //     onPressed: {
+    //         if (ShellState.osd)
+    //             ShellState.osd = false;
+    //         if (NotificationService.onScreenNotificationsModel.count)
+    //             NotificationService.onScreenNotificationsModel.clear();
+    //         ShellState.controlcenter = !ShellState.controlcenter;
+    //     }
+    // }
 
     GlobalShortcut {
         name: "clipboard"
