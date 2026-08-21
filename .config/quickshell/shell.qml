@@ -95,7 +95,6 @@ ShellRoot {
     }
 
     PanelWindow {
-        visible: ShellState.testmode
         anchors {
             top: true
             left: true

@@ -17,5 +17,4 @@ Singleton {
     property bool wallpaper: false
     property bool logout: false
     property bool mpd: false
-    property bool testmode: true
 }

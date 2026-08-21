@@ -43,41 +43,6 @@ Scope {
         }
     }
 
-    // GlobalShortcut {
-    //     name: "launcher"
-    //     description: "Toggle application launcher"
-    //
-    //     onPressed: {
-    //         if (ShellState.clipboard)
-    //             ShellState.clipboard = false;
-    //         ShellState.launcher = !ShellState.launcher;
-    //     }
-    // }
-
-    // GlobalShortcut {
-    //     name: "controlcenter"
-    //     description: "Toggle control center"
-    //
-    //     onPressed: {
-    //         if (ShellState.osd)
-    //             ShellState.osd = false;
-    //         if (NotificationService.onScreenNotificationsModel.count)
-    //             NotificationService.onScreenNotificationsModel.clear();
-    //         ShellState.controlcenter = !ShellState.controlcenter;
-    //     }
-    // }
-
-    // GlobalShortcut {
-    //     name: "clipboard"
-    //     description: "Toggle clipboard"
-    //
-    //     onPressed: {
-    //         if (ShellState.launcher)
-    //             ShellState.launcher = false;
-    //         ShellState.clipboard = !ShellState.clipboard;
-    //     }
-    // }
-
     GlobalShortcut {
         name: "osd"
         description: "Toggle osd"
@@ -87,15 +52,6 @@ Scope {
                 ShellState.osd = !ShellState.osd;
         }
     }
-
-    // GlobalShortcut {
-    //     name: "help"
-    //     description: "Toggle keybinds help"
-    //
-    //     onPressed: {
-    //         ShellState.help = !ShellState.help;
-    //     }
-    // }
 
     GlobalShortcut {
         name: "help"
@@ -123,17 +79,7 @@ Scope {
         description: "Toggle launcher, osd, controlcenter"
 
         onPressed: {
-            console.log("showcase triggered");
-            ShellState.launcher = ShellState.osd = ShellState.controlcenter = !(ShellState.launcher || ShellState.osd || ShellState.controlcenter);
-        }
-    }
-
-    GlobalShortcut {
-        name: "testmode"
-        description: "Toggle test mode"
-
-        onPressed: {
-            ShellState.testmode = !ShellState.testmode;
+            ShellState.launcher = ShellState.mediaplayer = ShellState.controlcenter = !(ShellState.launcher || ShellState.mediaplayer || ShellState.controlcenter);
         }
     }
 }
