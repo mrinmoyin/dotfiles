@@ -4,12 +4,13 @@ import QtQuick.Effects
 import Quickshell.Services.Mpris
 import "../../controls"
 import "../../services"
+import "../../types"
 
 RowLayout {
-    id: card
+    id: root
     spacing: 16
 
-    required property MprisPlayer modelData
+    required property Player modelData
     required property int index
 
     Item {
@@ -18,11 +19,11 @@ RowLayout {
 
         MouseArea {
             id: mouseArea
-            visible: card.modelData.canRaise
+            visible: root.modelData.source.canRaise
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: {
-                card.modelData.raise();
+                root.modelData.source.raise();
                 ShellState.mediaplayer = false;
             }
         }
@@ -32,7 +33,7 @@ RowLayout {
             visible: false
             anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            source: card.modelData.trackArtUrl
+            source: root.modelData.source.trackArtUrl
         }
 
         Rectangle {
@@ -75,16 +76,16 @@ RowLayout {
 
         Text {
             Layout.alignment: Qt.AlignTop | Qt.AlignRight
-            text: card.modelData.identity || "Unknown"
-            // text: card.modelData.desktopEntry || "Unknown"
-            // text: card.modelData.dbusName || "Unknown"
+            text: root.modelData.source.identity || "Unknown"
+            // text: root.modelData.desktopEntry || "Unknown"
+            // text: root.modelData.dbusName || "Unknown"
             color: "#ffffff"
             font.pixelSize: 10
             font.weight: Font.Medium
         }
 
         Text {
-            text: card.modelData.trackTitle || "Unknown"
+            text: root.modelData.source.trackTitle || "Unknown"
             color: "#ffffff"
             font.pixelSize: 12
             font.weight: Font.DemiBold
@@ -93,7 +94,7 @@ RowLayout {
         }
 
         Text {
-            text: card.modelData.trackArtist || "Unknown"
+            text: root.modelData.source.trackArtist || "Unknown"
             color: "#ffffff"
             font.pixelSize: 10
             font.weight: Font.Medium
@@ -109,19 +110,21 @@ RowLayout {
             IconButton {
                 anchors.top: parent.top
                 anchors.right: parent.right
-                icon: MprisService.lyricsEnabled ? "󰨖" : "󰨗"
-                onClicked: MprisService.lyricsEnabled = !MprisService.lyricsEnabled
+                icon: root.modelData.lyricsEnabled ? "󰨖" : "󰨗"
+                // onClicked: MprisService.lyricsEnabled = !MprisService.lyricsEnabled
+                // onClicked: root.modelData.source.lyricsEnabled = !root.modelData.source.lyricsEnabled
+                onClicked: (root.modelData.lyricsEnabled = !root.modelData.lyricsEnabled) && console.log(root.modelData.lyricsEnabled)
             }
 
             Item {
                 anchors.fill: parent
-                visible: MprisService.lyricsEnabled
+                visible: root.modelData.lyricsEnabled
 
                 Text {
                     id: lyricsStatusText
                     anchors.centerIn: parent
-                    visible: !MprisService.lyricsAvailable
-                    text: MprisService.loadingLyrics ? "Loading lyrics..." : "Lyrics unavailable"
+                    visible: !root.modelData.lyricsAvailable
+                    text: root.modelData.loadingLyrics ? "Loading lyrics..." : "Lyrics unavailable"
                     color: "#ffffff"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -132,7 +135,7 @@ RowLayout {
                 ListView {
                     id: lyricsList
                     visible: !lyricsStatusText.visible
-                    model: MprisService.lyrics
+                    model: root.modelData.lyrics
                     anchors.fill: parent
                     clip: true
                     highlightRangeMode: ListView.StrictlyEnforceRange
@@ -141,7 +144,7 @@ RowLayout {
                     // preferredHighlightBegin: height / 2 - 8
                     // preferredHighlightEnd: height / 2 + 8
                     interactive: false
-                    currentIndex: MprisService.currentLyricsIndex
+                    currentIndex: root.modelData.currentLyricsIndex
                     spacing: 4
 
                     delegate: Item {
@@ -228,103 +231,26 @@ RowLayout {
                             }
                         ]
                     }
-                    // delegate: Text {
-                    //     id: lyricsItem
-                    //     required property var modelData
-                    //     required property int index
-                    //     readonly property int currentIndex: lyricsList.currentIndex
-                    //     Behavior on y {
-                    //         NumberAnimation {
-                    //             duration: 500
-                    //         }
-                    //     }
-                    //
-                    //     anchors.left: parent.left
-                    //     anchors.right: parent.right
-                    //     horizontalAlignment: Text.AlignHCenter
-                    //     text: modelData.text
-                    //     color: "#ffffff"
-                    //     // lineHeight: 0
-                    //     wrapMode: Text.WordWrap
-                    //
-                    //     states: [
-                    //         State {
-                    //             name: "primary"
-                    //             when: lyricsItem.index === lyricsItem.currentIndex
-                    //
-                    //             PropertyChanges {
-                    //                 target: lyricsItem
-                    //                 font.pixelSize: 16
-                    //                 font.weight: Font.DemiBold
-                    //                 // scale: 1
-                    //             }
-                    //         },
-                    //         State {
-                    //             name: "secondary"
-                    //             when: lyricsItem.index === lyricsItem.currentIndex + 1 || lyricsItem.index === lyricsItem.currentIndex - 1
-                    //
-                    //             PropertyChanges {
-                    //                 target: lyricsItem
-                    //                 font.pixelSize: 14
-                    //                 opacity: 0.8
-                    //                 // scale: 0.8
-                    //             }
-                    //         },
-                    //         State {
-                    //             name: "tertiary"
-                    //             when: lyricsItem.index === lyricsItem.currentIndex + 2 || lyricsItem.index === lyricsItem.currentIndex - 2
-                    //
-                    //             PropertyChanges {
-                    //                 target: lyricsItem
-                    //                 font.pixelSize: 12
-                    //                 opacity: 0.6
-                    //                 // scale: 0.6
-                    //             }
-                    //         },
-                    //         State {
-                    //             name: "others"
-                    //             when: lyricsItem.index === lyricsItem.currentIndex + 3 || lyricsItem.index === lyricsItem.currentIndex - 3
-                    //
-                    //             PropertyChanges {
-                    //                 target: lyricsItem
-                    //                 font.pixelSize: 10
-                    //                 opacity: 0.4
-                    //                 // scale: 0.4
-                    //             }
-                    //         },
-                    //         State {
-                    //             name: "etc"
-                    //             when: lyricsItem.index >= lyricsItem.currentIndex + 4 || lyricsItem.index <= lyricsItem.currentIndex - 4
-                    //
-                    //             PropertyChanges {
-                    //                 target: lyricsItem
-                    //                 font.pixelSize: 8
-                    //                 opacity: 0
-                    //                 // scale: 0.2
-                    //             }
-                    //         }
-                    //     ]
-                    // }
                 }
             }
         }
 
         HorizontalSlider {
             id: progress
-            visible: card.modelData.positionSupported
+            visible: root.modelData.source.positionSupported
             implicitHeight: 12
             Layout.fillWidth: true
             Layout.topMargin: 4
-            enabled: card.modelData.canSeek
+            enabled: root.modelData.source.canSeek
 
             from: 0
-            to: card.modelData.length
+            to: root.modelData.source.length
             stepSize: 1
 
-            value: card.modelData.position
+            value: root.modelData.source.position
             onMoved: {
-                card.modelData.seek(value);
-                // card.modelData.position = value;
+                root.modelData.source.seek(value);
+                // root.modelData.source.position = value;
             }
 
             Behavior on value {
@@ -336,14 +262,16 @@ RowLayout {
         RowLayout {
             Text {
                 Layout.fillWidth: true
-                text: MprisService.formatTime(progress.value)
+                // text: MprisService.formatTime(progress.value)
+                text: root.modelData.positionString
                 color: "#ffffff"
                 font.pixelSize: 10
                 font.weight: Font.Medium
             }
             Text {
                 Layout.alignment: Qt.AlignRight
-                text: MprisService.formatTime(card.modelData.length)
+                // text: MprisService.formatTime(root.modelData.source.length)
+                text: root.modelData.lengthString
                 color: "#ffffff"
                 font.pixelSize: 10
                 font.weight: Font.Medium
@@ -354,36 +282,36 @@ RowLayout {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
 
             IconButton {
-                icon: card.modelData.shuffle ? "󰒝" : "󰒞"
-                enabled: card.modelData.shuffleSupported
-                onClicked: card.modelData.shuffle = !card.modelData.shuffle
+                icon: root.modelData.source.shuffle ? "󰒝" : "󰒞"
+                enabled: root.modelData.source.shuffleSupported
+                onClicked: root.modelData.source.shuffle = !root.modelData.source.shuffle
             }
             IconButton {
                 icon: "󰒮"
-                enabled: card.modelData.canGoPrevious
-                onClicked: card.modelData.previous()
+                enabled: root.modelData.source.canGoPrevious
+                onClicked: root.modelData.source.previous()
             }
             IconButton {
-                icon: card.modelData.playbackState === MprisPlaybackState.Playing ? "" : ""
-                enabled: card.modelData.canTogglePlaying
-                onClicked: card.modelData.togglePlaying()
+                icon: root.modelData.source.playbackState === MprisPlaybackState.Playing ? "" : ""
+                enabled: root.modelData.source.canTogglePlaying
+                onClicked: root.modelData.source.togglePlaying()
                 size: 32
             }
             IconButton {
                 icon: "󰒭"
-                enabled: card.modelData.canGoNext
-                onClicked: card.modelData.next()
+                enabled: root.modelData.source.canGoNext
+                onClicked: root.modelData.source.next()
             }
             IconButton {
-                icon: card.modelData.loopState === MprisLoopState.Track ? "󰑘" : card.modelData.loopState === MprisLoopState.Playlist ? "󰑖" : "󰑗"
-                enabled: card.modelData.loopSupported
+                icon: root.modelData.source.loopState === MprisLoopState.Track ? "󰑘" : root.modelData.source.loopState === MprisLoopState.Playlist ? "󰑖" : "󰑗"
+                enabled: root.modelData.source.loopSupported
                 onClicked: {
-                    if (card.modelData.loopState === MprisLoopState.None)
-                        card.modelData.loopState = MprisLoopState.Track;
-                    else if (card.modelData.loopState === MprisLoopState.Track)
-                        card.modelData.loopState = MprisLoopState.Playlist;
+                    if (root.modelData.source.loopState === MprisLoopState.None)
+                        root.modelData.source.loopState = MprisLoopState.Track;
+                    else if (root.modelData.source.loopState === MprisLoopState.Track)
+                        root.modelData.source.loopState = MprisLoopState.Playlist;
                     else
-                        card.modelData.loopState = MprisLoopState.None;
+                        root.modelData.source.loopState = MprisLoopState.None;
                 }
             }
         }
