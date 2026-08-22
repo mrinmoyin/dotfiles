@@ -12,8 +12,7 @@ import "../notification"
 
 PanelWindow {
     id: root
-
-    readonly property bool active: ShellState.osn
+    visible: ShellState.osn
 
     anchors {
         // top: true
@@ -21,8 +20,6 @@ PanelWindow {
         bottom: true
     }
 
-    // readonly property bool active: NotificationService.onScreenNotificationsModel.count > 0
-    // visible: NotificationService.onScreenNotificationsModel.count > 0
     implicitWidth: 360
     implicitHeight: content.height + 52
     // implicitHeight: content.height + (content.anchors.topMargin * 2) + 20
@@ -180,14 +177,6 @@ PanelWindow {
             bottomMargin: 16
         }
 
-        // move: Transition {
-        //     NumberAnimation {
-        //         properties: "y"
-        //         duration: 150
-        //         easing.type: Easing.OutCubic
-        //     }
-        // }
-
         Repeater {
             model: NotificationService.onScreenNotificationsModel
 
@@ -195,9 +184,17 @@ PanelWindow {
                 id: card
 
                 Timer {
+                    id: closeTimer
                     running: true
                     interval: Config.onScreenNotification.timeout
                     onTriggered: NotificationService.onScreenNotificationsModel.remove(card.index)
+                }
+
+                HoverHandler {
+                    onHoveredChanged: if (hovered)
+                        closeTimer.stop()
+                    else
+                        closeTimer.restart()
                 }
 
                 onDismiss: {

@@ -19,4 +19,9 @@ Singleton {
             animationDuration: 250,
             timeout: 0
         })
+
+    readonly property var media: ({
+            lyricsEnabled: true,
+            blacklist: ["Mozilla zen"]
+        })
 }

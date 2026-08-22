@@ -72,7 +72,6 @@ RowLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
-        // Layout.fillHeight: true
 
         Text {
             Layout.alignment: Qt.AlignTop | Qt.AlignRight
@@ -111,9 +110,7 @@ RowLayout {
                 anchors.top: parent.top
                 anchors.right: parent.right
                 icon: root.modelData.lyricsEnabled ? "󰨖" : "󰨗"
-                // onClicked: MprisService.lyricsEnabled = !MprisService.lyricsEnabled
-                // onClicked: root.modelData.source.lyricsEnabled = !root.modelData.source.lyricsEnabled
-                onClicked: (root.modelData.lyricsEnabled = !root.modelData.lyricsEnabled) && console.log(root.modelData.lyricsEnabled)
+                onClicked: root.modelData.lyricsEnabled = !root.modelData.lyricsEnabled
             }
 
             Item {
@@ -132,104 +129,101 @@ RowLayout {
                     lineHeight: 0
                 }
 
-                ListView {
-                    id: lyricsList
-                    visible: !lyricsStatusText.visible
-                    model: root.modelData.lyrics
+                Loader {
+                    active: parent.visible && !lyricsStatusText.visible
                     anchors.fill: parent
-                    clip: true
-                    highlightRangeMode: ListView.StrictlyEnforceRange
-                    preferredHighlightBegin: height / 2 - currentItem.height / 2
-                    preferredHighlightEnd: height / 2 + currentItem.height / 2
-                    // preferredHighlightBegin: height / 2 - 8
-                    // preferredHighlightEnd: height / 2 + 8
-                    interactive: false
-                    currentIndex: root.modelData.currentLyricsIndex
-                    spacing: 4
 
-                    delegate: Item {
-                        id: lyricsItem
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        height: lyricsText.height
-                        // horizontalCenter: parent.horizontalCenter
+                    sourceComponent: Component {
+                        ListView {
+                            id: lyricsList
+                            model: root.modelData.lyrics
+                            anchors.fill: parent
+                            clip: true
+                            highlightRangeMode: ListView.StrictlyEnforceRange
+                            preferredHighlightBegin: height / 2 - currentItem.height / 2
+                            preferredHighlightEnd: height / 2 + currentItem.height / 2
+                            interactive: false
+                            currentIndex: root.modelData.currentLyricsIndex
+                            spacing: 4
 
-                        required property var modelData
-                        required property int index
-                        readonly property int currentIndex: lyricsList.currentIndex
-                        // Behavior on y {
-                        //     NumberAnimation {
-                        //         duration: 500
-                        //     }
-                        // }
+                            delegate: Item {
+                                id: lyricsItem
+                                // anchors.left: parent.left
+                                // anchors.right: parent.right
+                                width: lyricsContainer.width
+                                height: lyricsText.height
 
-                        Text {
-                            id: lyricsText
-                            anchors.left: parent.left
-                            anchors.right: parent.right
+                                required property var modelData
+                                required property int index
+                                readonly property int currentIndex: lyricsList.currentIndex
+                                Text {
+                                    id: lyricsText
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
 
-                            horizontalAlignment: Text.AlignHCenter
-                            text: lyricsItem.modelData.text
-                            color: "#ffffff"
-                            // lineHeight: 0
-                            wrapMode: Text.WordWrap
-                            font.pixelSize: 16
-                            font.weight: Font.DemiBold
-                            // font.weight: lyricsItem.index === lyricsItem.currentIndex ? Font.DemiBold : Font.Medium
-                        }
-
-                        states: [
-                            State {
-                                name: "primary"
-                                when: lyricsItem.index === lyricsItem.currentIndex
-
-                                PropertyChanges {
-                                    target: lyricsItem
-                                    scale: 1
-                                    opacity: 1
+                                    horizontalAlignment: Text.AlignHCenter
+                                    text: lyricsItem.modelData.text
+                                    color: "#ffffff"
+                                    // lineHeight: 0
+                                    wrapMode: Text.WordWrap
+                                    font.pixelSize: 16
+                                    font.weight: Font.DemiBold
                                 }
-                            },
-                            State {
-                                name: "secondary"
-                                when: lyricsItem.index === lyricsItem.currentIndex + 1 || lyricsItem.index === lyricsItem.currentIndex - 1
 
-                                PropertyChanges {
-                                    target: lyricsItem
-                                    scale: 0.75
-                                    opacity: 0.75
-                                }
-                            },
-                            State {
-                                name: "tertiary"
-                                when: lyricsItem.index === lyricsItem.currentIndex + 2 || lyricsItem.index === lyricsItem.currentIndex - 2
+                                states: [
+                                    State {
+                                        name: "primary"
+                                        when: lyricsItem.index === lyricsItem.currentIndex
 
-                                PropertyChanges {
-                                    target: lyricsItem
-                                    scale: 0.5
-                                    opacity: 0.5
-                                }
-                            },
-                            State {
-                                name: "others"
-                                when: lyricsItem.index === lyricsItem.currentIndex + 3 || lyricsItem.index === lyricsItem.currentIndex - 3
+                                        PropertyChanges {
+                                            target: lyricsItem
+                                            scale: 1
+                                            opacity: 1
+                                        }
+                                    },
+                                    State {
+                                        name: "secondary"
+                                        when: lyricsItem.index === lyricsItem.currentIndex + 1 || lyricsItem.index === lyricsItem.currentIndex - 1
 
-                                PropertyChanges {
-                                    target: lyricsItem
-                                    scale: 0.25
-                                    opacity: 0.25
-                                }
-                            },
-                            State {
-                                name: "etc"
-                                when: lyricsItem.index >= lyricsItem.currentIndex + 4 || lyricsItem.index <= lyricsItem.currentIndex - 4
+                                        PropertyChanges {
+                                            target: lyricsItem
+                                            scale: 0.75
+                                            opacity: 0.75
+                                        }
+                                    },
+                                    State {
+                                        name: "tertiary"
+                                        when: lyricsItem.index === lyricsItem.currentIndex + 2 || lyricsItem.index === lyricsItem.currentIndex - 2
 
-                                PropertyChanges {
-                                    target: lyricsItem
-                                    scale: 0
-                                    opacity: 0
-                                }
+                                        PropertyChanges {
+                                            target: lyricsItem
+                                            scale: 0.5
+                                            opacity: 0.5
+                                        }
+                                    },
+                                    State {
+                                        name: "others"
+                                        when: lyricsItem.index === lyricsItem.currentIndex + 3 || lyricsItem.index === lyricsItem.currentIndex - 3
+
+                                        PropertyChanges {
+                                            target: lyricsItem
+                                            scale: 0.25
+                                            opacity: 0.25
+                                        }
+                                    },
+                                    State {
+                                        name: "etc"
+                                        when: lyricsItem.index >= lyricsItem.currentIndex + 4 || lyricsItem.index <= lyricsItem.currentIndex - 4
+
+                                        PropertyChanges {
+                                            target: lyricsItem
+                                            scale: 0
+                                            opacity: 0
+                                        }
+                                    }
+                                ]
                             }
-                        ]
+                        }
                     }
                 }
             }
@@ -262,7 +256,6 @@ RowLayout {
         RowLayout {
             Text {
                 Layout.fillWidth: true
-                // text: MprisService.formatTime(progress.value)
                 text: root.modelData.positionString
                 color: "#ffffff"
                 font.pixelSize: 10
@@ -270,7 +263,6 @@ RowLayout {
             }
             Text {
                 Layout.alignment: Qt.AlignRight
-                // text: MprisService.formatTime(root.modelData.source.length)
                 text: root.modelData.lengthString
                 color: "#ffffff"
                 font.pixelSize: 10

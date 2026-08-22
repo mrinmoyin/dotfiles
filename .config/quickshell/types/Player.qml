@@ -1,12 +1,13 @@
 import QtQuick
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import "../config"
 
 QtObject {
     id: root
 
     required property MprisPlayer source
-    property bool lyricsEnabled: false
+    property bool lyricsEnabled: Config.media.lyricsEnabled && !Config.media.blacklist.includes(source.identity)
     property bool lyricsAvailable: false
     property ListModel lyrics: ListModel {}
     property int currentLyricsIndex: 0
@@ -64,7 +65,7 @@ QtObject {
     }
 
     property Connections trackChangeConn: Connections {
-        target: player.source
+        target: root.source
 
         function onPostTrackChanged() {
             if (root.lyricsEnabled) {
@@ -91,7 +92,7 @@ QtObject {
             onStreamFinished: {
                 const data = JSON.parse(text);
                 if (!data.syncedLyrics) {
-                    console.warn("unalbe to fetch lyrics", root.lyricsProc.command);
+                    console.warn(root.source.identity, "Unalbe to fetch lyrics", root.lyricsProc.command);
                     root.lyricsAvailable = false;
                     return;
                 }
@@ -109,7 +110,6 @@ QtObject {
                         time: parseInt(times[0] * 60) + parseFloat(times[1]),
                         text: parts[1]
                     });
-                    // console.log("time:", parseInt(times[0] * 60) + parseFloat(times[1]), "text:", parts[1]);
                 }
                 root.lyricsChanged();
             }
@@ -120,14 +120,11 @@ QtObject {
         running: root.source.isPlaying
         repeat: true
         interval: 1000
-        // onTriggered: root.player.positionChanged()
         onTriggered: {
             root.positionString = root.formatTime(root.source.position);
             root.source.positionChanged();
-            if (root.source.position < 1 && root.lyricsEnabled && root.lyricsAvailable) {
-                console.log("synch lyrics");
+            if (root.source.position < 1 && root.lyricsEnabled && root.lyricsAvailable)
                 root.syncLyrics();
-            }
         }
     }
 }

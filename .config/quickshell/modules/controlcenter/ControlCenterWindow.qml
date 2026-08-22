@@ -5,7 +5,6 @@ import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Services.Mpris
 import Quickshell.Services.UPower
 import "../../components"
 import "../../services"
@@ -45,6 +44,9 @@ PanelWindow {
     FocusScope {
         id: scope
         focus: true
+        // onActiveFocusChanged: if (!activeFocus) {
+        //     root.close();
+        // }
 
         anchors {
             top: parent.top
@@ -73,7 +75,6 @@ PanelWindow {
             onFinished: {
                 ShellState.controlcenter = false;
                 scrollable.contentItem.contentY = 0;
-                playersList.currentIndex = MprisService.playerIndex;
             }
         }
 
@@ -356,21 +357,21 @@ PanelWindow {
                     Item {
                         Layout.fillWidth: true
                         implicitHeight: 100
-                        visible: MprisService.player !== null
-                        // visible: Mpris.players.values.length > 0
+                        visible: MprisService.players.length > 0
 
                         Loader {
-                            active: root.active
+                            id: playersListLoader
+                            active: parent.visible && root.active
                             anchors.fill: parent
                             sourceComponent: Component {
                                 SwipeView {
                                     id: playersList
                                     anchors.fill: parent
                                     spacing: 8
-                                    // currentIndex: MprisService.playerIndex
+                                    currentIndex: MprisService.playerIndex
 
                                     Repeater {
-                                        model: Mpris.players
+                                        model: MprisService.players
 
                                         MediaPlayerCard {
                                             width: playersList.width

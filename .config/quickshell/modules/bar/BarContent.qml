@@ -30,16 +30,13 @@ Item {
     }
 
     // Center
-    RowLayout {
+    Mpris {
         anchors {
             centerIn: parent
             verticalCenter: parent.verticalCenter
             leftMargin: root.gapOut
             rightMargin: root.gapOut
         }
-        spacing: root.gapIn
-
-        Mpris {}
     }
 
     // Right
