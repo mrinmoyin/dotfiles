@@ -109,8 +109,8 @@ PanelWindow {
 
                     function exec(): void {
                         if (itemDelegate.modelData.cmd !== "") {
-                            ShellState.logout = false;
                             proc.running = true;
+                            // ShellState.logout = false;
                         }
                     }
 

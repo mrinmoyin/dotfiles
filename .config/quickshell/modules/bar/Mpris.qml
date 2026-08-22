@@ -1,29 +1,29 @@
 import QtQuick
 import Quickshell
-import Quickshell.Services.Mpris
 import "../../controls"
 import "../../services"
 import "../../config"
+import "../../types"
 
 Item {
     id: root
     implicitWidth: Math.min(Quickshell.screens[0].width / 3, 540)
     implicitHeight: 24
 
-    property MprisPlayer player: MprisService.player
+    property Player player: MprisService.player
 
     HorizontalSlider {
         id: slider
         anchors.fill: parent
-        enabled: root.player.canSeek
+        enabled: root.player.source.canSeek
         clip: true
 
         from: 0
-        to: root.player.length
-        value: root.player.position
+        to: root.player.source.length
+        value: root.player.source.position
         stepSize: 1
-        onMoved: if (root.player.canSeek) {
-            root.player.position = value;
+        onMoved: if (root.player.source.canSeek) {
+            root.player.source.position = value;
         }
 
         Behavior on value {
@@ -40,9 +40,9 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             opacity: 1
 
-            readonly property string title: "  " + root.player.trackTitle || "Unknown"
-            readonly property string lyric: MprisService.lyricsAvailable && MprisService.lyrics.get(MprisService.currentLyricsIndex).text || ""
-            readonly property string currentText: MprisService.lyricsEnabled && lyric !== "" ? lyric : title
+            readonly property string title: "  " + root.player.source.trackTitle || "Unknown"
+            readonly property string lyric: root.player.lyricsAvailable && root.player.lyrics.get(root.player.currentLyricsIndex).text || ""
+            readonly property string currentText: root.player.lyricsEnabled && lyric !== "" ? lyric : title
 
             onCurrentTextChanged: {
                 outAnimation.start();

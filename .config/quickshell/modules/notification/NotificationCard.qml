@@ -256,10 +256,10 @@ Rectangle {
             return deltaT + " Min ago";
         } else if (deltaT < (60 * 24)) {
             // return (currentDate.getHours() - date.getHours()) + " Hours " + (currentDate.getMinutes() - date.getMinutes()) + " Min ago";
-            return deltaT / 60 + " Hours " + deltaT % 60 + " Min ago";
+            return parseInt(deltaT / 60) + " Hours " + parseInt(deltaT % 60) + " Min ago";
         } else if (deltaT < (60 * 24 * 24)) {
             // return (currentDate.getDay() - date.getDay()) + " Days ago";
-            return deltaT / (60 * 24) + " Days " + deltaT % (60 * 24) + " Hours ago";
+            return parseInt(deltaT / (60 * 24)) + " Days " + parseInt(deltaT % (60 * 24)) + " Hours ago";
         }
         return date.toDateString();
 

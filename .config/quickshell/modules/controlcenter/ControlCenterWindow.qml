@@ -15,6 +15,7 @@ import "../../config"
 
 PanelWindow {
     id: root
+    visible: active
 
     readonly property bool active: ShellState.controlcenter
 
@@ -36,7 +37,6 @@ PanelWindow {
 
     screen: Quickshell.screens[0]
     exclusionMode: ExclusionMode.Normal
-    // WlrLayershell.keyboardFocus: active ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     function close(): void {
         outAnimation.start();
@@ -235,8 +235,6 @@ PanelWindow {
                     }
                 }
             }
-            // Component.onCompleted {
-            // }
 
             ScrollView {
                 id: scrollable
@@ -361,17 +359,23 @@ PanelWindow {
                         visible: MprisService.player !== null
                         // visible: Mpris.players.values.length > 0
 
-                        SwipeView {
-                            id: playersList
+                        Loader {
+                            active: root.active
                             anchors.fill: parent
-                            spacing: 8
-                            // currentIndex: MprisService.playerIndex
+                            sourceComponent: Component {
+                                SwipeView {
+                                    id: playersList
+                                    anchors.fill: parent
+                                    spacing: 8
+                                    // currentIndex: MprisService.playerIndex
 
-                            Repeater {
-                                model: Mpris.players
+                                    Repeater {
+                                        model: Mpris.players
 
-                                MediaPlayerCard {
-                                    width: playersList.width
+                                        MediaPlayerCard {
+                                            width: playersList.width
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -400,236 +404,26 @@ PanelWindow {
                             }
                         }
 
-                        Repeater {
-                            model: NotificationService.trackedNotificationsModel
-                            // model: NotificationService.trackedNotifications
+                        Loader {
+                            active: root.active
+                            Layout.fillWidth: true
+                            sourceComponent: Component {
+                                Repeater {
+                                    model: NotificationService.trackedNotificationsModel
+                                    // model: NotificationService.trackedNotifications
 
-                            NotificationCard {
-                                onDismiss: {
-                                    NotificationService.trackedNotificationsModel.remove(index);
-                                    NotificationService.dismiss(modelData.id);
+                                    NotificationCard {
+                                        onDismiss: {
+                                            NotificationService.trackedNotificationsModel.remove(index);
+                                            NotificationService.dismiss(modelData.id);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-
-            // Flickable {
-            //     id: flickableContent
-            //     // implicitWidth: background.width
-            //     Layout.fillWidth: true
-            //     Layout.fillHeight: true
-            //     contentWidth: width
-            //     contentHeight: content.height
-            //     clip: true
-            //
-            //     flickableDirection: Flickable.VerticalFlick
-            //     boundsBehavior: Flickable.DragAndOvershootBounds
-            //     boundsMovement: Flickable.OvershootBounds
-            //     // boundsMovement: Flickable.FollowBoundsBehavior
-            //     // boundsBehavior: Flickable.StopAtBounds
-            //     // maximumFlickVelocity: 3000
-            //     // flickDeceleration: 1500
-            //
-            //     // rebound: Transition {
-            //     //     NumberAnimation {
-            //     //         properties: "x,y"
-            //     //         duration: 150
-            //     //         easing.bezierCurve: [0.85, 0, 0.15, 1]
-            //     //     }
-            //     // }
-            //
-            //     ColumnLayout {
-            //         id: content
-            //         anchors.fill: parent
-            //         spacing: 8
-            //
-            //         GridLayout {
-            //             Layout.fillWidth: true
-            //             columns: 2
-            //             rowSpacing: 8
-            //             columnSpacing: 8
-            //
-            //             QuickActionButton {
-            //                 icon: ""
-            //                 label: "Wifi"
-            //             }
-            //
-            //             QuickActionButton {
-            //                 icon: "󰂯"
-            //                 label: "Bluetooth"
-            //             }
-            //
-            //             QuickActionButton {
-            //                 icon: ""
-            //                 label: "Power"
-            //                 desc: UPower.profile === PowerProfile.PowerSaver ? "PowerSaver" : UPower.profile === PowerProfile.Balanced ? "Balanced" : "Performance"
-            //                 onClicked: {
-            //                     if (UPower.hasPerformanceProfile) {
-            //                         switch (UPower.profile) {
-            //                         case PowerProfile.Balanced:
-            //                             UPower.profile = PowerProfile.Performance;
-            //                             break;
-            //                         case PowerProfile.Performance:
-            //                             UPower.profile = PowerProfile.PowerSaver;
-            //                             break;
-            //                         default:
-            //                             UPower.profile = PowerProfile.Balanced;
-            //                             break;
-            //                         }
-            //                     } else {
-            //                         switch (UPower.profile) {
-            //                         case PowerProfile.Balanced:
-            //                             UPower.profile = PowerProfile.PowerSaver;
-            //                             break;
-            //                         default:
-            //                             UPower.profile = PowerProfile.Balanced;
-            //                             break;
-            //                         }
-            //                     }
-            //                 }
-            //             }
-            //
-            //             QuickActionButton {
-            //                 icon: "󰂛"
-            //                 label: "DND"
-            //             }
-            //         }
-            //
-            //         ColumnLayout {
-            //             Layout.fillWidth: true
-            //             spacing: 8
-            //
-            //             // Brightness slider
-            //             HorizontalSlider {
-            //                 visible: BrightnessService.hasBacklight
-            //                 Layout.fillWidth: true
-            //                 icon: "󰃠"
-            //
-            //                 value: BrightnessService.getBrightness()
-            //                 onMoved: BrightnessService.setBrightness(value)
-            //             }
-            //
-            //             // Sink volume slider
-            //             HorizontalSlider {
-            //                 Layout.fillWidth: true
-            //                 icon: "󰕾"
-            //
-            //                 from: 0
-            //                 to: 1
-            //                 stepSize: 0.01
-            //                 value: AudioService.sink.audio.volume
-            //                 onMoved: AudioService.sink.audio.volume = value
-            //
-            //                 Behavior on value {
-            //                     NumberAnimation {
-            //                         duration: Config.appearence.animationDuration || 500
-            //                     }
-            //                 }
-            //             }
-            //             // Source volume slider
-            //             HorizontalSlider {
-            //                 Layout.fillWidth: true
-            //                 icon: ""
-            //
-            //                 from: 0
-            //                 to: 1
-            //                 stepSize: 0.01
-            //                 value: AudioService.source.audio.volume
-            //                 onMoved: AudioService.source.audio.volume = value
-            //
-            //                 Behavior on value {
-            //                     NumberAnimation {
-            //                         duration: Config.appearence.animationDuration || 500
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //
-            //         Item {
-            //             Layout.fillWidth: true
-            //             implicitHeight: 100
-            //             visible: MprisService.player !== null
-            //             // visible: Mpris.players.values.length > 0
-            //
-            //             SwipeView {
-            //                 id: playersList
-            //                 anchors.fill: parent
-            //                 spacing: 8
-            //                 // currentIndex: MprisService.playerIndex
-            //
-            //                 Repeater {
-            //                     model: Mpris.players
-            //
-            //                     MediaPlayerCard {
-            //                         width: playersList.width
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //         // Flickable {
-            //         //     id: playersList
-            //         //     visible: Mpris.players.values.length > 0
-            //         //     Layout.fillWidth: true
-            //         //     implicitHeight: 100
-            //         //     contentWidth: playersContent.width
-            //         //     contentHeight: playersContent.height
-            //         //     flickableDirection: Flickable.HorizontalFlick
-            //         //     clip: true
-            //         //     // boundsBehavior: Flickable.StopAtBounds
-            //         //
-            //         //     Row {
-            //         //         id: playersContent
-            //         //         spacing: 8
-            //         //
-            //         //         Repeater {
-            //         //             model: Mpris.players
-            //         //
-            //         //             MediaPlayerCard {
-            //         //                 width: playersList.width
-            //         //             }
-            //         //         }
-            //         //     }
-            //         // }
-            //
-            //         ColumnLayout {
-            //             id: notificationsContainer
-            //             Layout.fillWidth: true
-            //             spacing: 8
-            //
-            //             RowLayout {
-            //                 Layout.fillWidth: true
-            //                 spacing: 0
-            //
-            //                 Text {
-            //                     Layout.fillWidth: true
-            //                     text: "Notifications"
-            //                     font.pixelSize: 12
-            //                     font.weight: Font.DemiBold
-            //                     color: "#ffffff"
-            //                 }
-            //
-            //                 BarButton {
-            //                     icon: "󰎟"
-            //                     onClicked: NotificationService.dismissAll()
-            //                 }
-            //             }
-            //
-            //             Repeater {
-            //                 model: NotificationService.trackedNotificationsModel
-            //                 // model: NotificationService.trackedNotifications
-            //
-            //                 NotificationCard {
-            //                     onDismiss: {
-            //                         NotificationService.trackedNotificationsModel.remove(index);
-            //                         NotificationService.dismiss(modelData.id);
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
         }
     }
 }

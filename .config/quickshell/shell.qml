@@ -33,13 +33,14 @@ ShellRoot {
         aboveWindows: false
     }
 
-    Loader {
-        id: controlCenterLoader
-        active: ShellState.controlcenter
-        sourceComponent: Component {
-            ControlCenterWindow {}
-        }
-    }
+    // Loader {
+    //     id: controlCenterLoader
+    //     active: ShellState.controlcenter
+    //     sourceComponent: Component {
+    //         ControlCenterWindow {}
+    //     }
+    // }
+    ControlCenterWindow {}
 
     Loader {
         active: ShellState.osn
@@ -55,19 +56,21 @@ ShellRoot {
         }
     }
 
-    Loader {
-        active: ShellState.launcher
-        sourceComponent: Component {
-            LauncherWindow {}
-        }
-    }
+    // Loader {
+    //     active: ShellState.launcher
+    //     sourceComponent: Component {
+    //         LauncherWindow {}
+    //     }
+    // }
+    LauncherWindow {}
 
-    Loader {
-        active: ShellState.clipboard
-        sourceComponent: Component {
-            ClipboardWindow {}
-        }
-    }
+    // Loader {
+    //     active: ShellState.clipboard
+    //     sourceComponent: Component {
+    //         ClipboardWindow {}
+    //     }
+    // }
+    ClipboardWindow {}
 
     Loader {
         active: ShellState.help
