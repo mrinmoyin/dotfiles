@@ -72,7 +72,6 @@ RowLayout {
 
     ColumnLayout {
         Layout.fillWidth: true
-        // Layout.fillHeight: true
 
         Text {
             Layout.alignment: Qt.AlignTop | Qt.AlignRight
@@ -149,8 +148,9 @@ RowLayout {
 
                             delegate: Item {
                                 id: lyricsItem
-                                anchors.left: parent.left
-                                anchors.right: parent.right
+                                // anchors.left: parent.left
+                                // anchors.right: parent.right
+                                width: lyricsContainer.width
                                 height: lyricsText.height
 
                                 required property var modelData

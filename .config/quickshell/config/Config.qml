@@ -21,6 +21,7 @@ Singleton {
         })
 
     readonly property var media: ({
-            lyricsEnabled: true
+            lyricsEnabled: true,
+            blacklist: ["Mozilla zen"]
         })
 }

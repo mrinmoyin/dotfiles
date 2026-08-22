@@ -7,7 +7,7 @@ QtObject {
     id: root
 
     required property MprisPlayer source
-    property bool lyricsEnabled: false
+    property bool lyricsEnabled: Config.media.lyricsEnabled && !Config.media.blacklist.includes(source.identity)
     property bool lyricsAvailable: false
     property ListModel lyrics: ListModel {}
     property int currentLyricsIndex: 0
@@ -65,7 +65,7 @@ QtObject {
     }
 
     property Connections trackChangeConn: Connections {
-        target: player.source
+        target: root.source
 
         function onPostTrackChanged() {
             if (root.lyricsEnabled) {
@@ -92,7 +92,7 @@ QtObject {
             onStreamFinished: {
                 const data = JSON.parse(text);
                 if (!data.syncedLyrics) {
-                    console.warn("unalbe to fetch lyrics", root.lyricsProc.command);
+                    console.warn("unalbe to fetch lyrics", root.source.identity, root.lyricsProc.command);
                     root.lyricsAvailable = false;
                     return;
                 }

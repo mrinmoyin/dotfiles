@@ -26,21 +26,16 @@ ShellRoot {
             right: true
         }
 
-        height: 34
+        implicitHeight: 34
         color: "transparent"
 
         screen: Quickshell.screens[0]
         aboveWindows: false
     }
 
-    // Loader {
-    //     id: controlCenterLoader
-    //     active: ShellState.controlcenter
-    //     sourceComponent: Component {
-    //         ControlCenterWindow {}
-    //     }
-    // }
     ControlCenterWindow {}
+    LauncherWindow {}
+    ClipboardWindow {}
 
     Loader {
         active: ShellState.osn
@@ -55,22 +50,6 @@ ShellRoot {
             OsdWindow {}
         }
     }
-
-    // Loader {
-    //     active: ShellState.launcher
-    //     sourceComponent: Component {
-    //         LauncherWindow {}
-    //     }
-    // }
-    LauncherWindow {}
-
-    // Loader {
-    //     active: ShellState.clipboard
-    //     sourceComponent: Component {
-    //         ClipboardWindow {}
-    //     }
-    // }
-    ClipboardWindow {}
 
     Loader {
         active: ShellState.help
@@ -122,15 +101,10 @@ ShellRoot {
             anchors.right: parent.right
         }
 
-        Loader {
-            active: ShellState.mediaplayer
+        MediaPlayer {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 34
-
-            sourceComponent: Component {
-                MediaPlayer {}
-            }
         }
     }
 }
