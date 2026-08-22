@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import "../config"
 
 QtObject {
     id: root

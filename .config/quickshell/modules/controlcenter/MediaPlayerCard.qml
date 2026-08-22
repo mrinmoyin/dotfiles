@@ -4,11 +4,12 @@ import QtQuick.Effects
 import Quickshell.Services.Mpris
 import "../../controls"
 import "../../services"
+import "../../types"
 
 Rectangle {
     id: root
 
-    required property MprisPlayer modelData
+    required property Player modelData
     required property int index
 
     implicitWidth: parent.width
@@ -28,11 +29,11 @@ Rectangle {
 
             MouseArea {
                 id: mouseArea
-                visible: root.modelData.canRaise
+                visible: root.modelData.source.canRaise
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
-                    root.modelData.raise();
+                    root.modelData.source.raise();
                     ShellState.controlcenter = false;
                 }
             }
@@ -42,7 +43,7 @@ Rectangle {
                 visible: false
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
-                source: root.modelData.trackArtUrl
+                source: root.modelData.source.trackArtUrl
             }
 
             Rectangle {
@@ -89,7 +90,7 @@ Rectangle {
                 spacing: 0
 
                 Text {
-                    text: root.modelData.trackTitle || "Unknown"
+                    text: root.modelData.source.trackTitle || "Unknown"
                     color: "#ffffff"
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -98,7 +99,7 @@ Rectangle {
                 }
                 RowLayout {
                     Text {
-                        text: root.modelData.trackArtist || "Unknown"
+                        text: root.modelData.source.trackArtist || "Unknown"
                         color: "#ffffff"
                         font.pixelSize: 10
                         font.weight: Font.Medium
@@ -106,9 +107,9 @@ Rectangle {
                         Layout.fillWidth: true
                     }
                     Text {
-                        text: root.modelData.identity || "Unknown"
-                        // text: root.modelData.desktopEntry || "Unknown"
-                        // text: root.modelData.dbusName || "Unknown"
+                        text: root.modelData.source.identity || "Unknown"
+                        // text: root.modelData.source.desktopEntry || "Unknown"
+                        // text: root.modelData.source.dbusName || "Unknown"
                         color: "#ffffff"
                         font.pixelSize: 10
                         font.weight: Font.Medium
@@ -118,19 +119,19 @@ Rectangle {
 
             HorizontalSlider {
                 id: progress
-                visible: root.modelData.positionSupported
+                visible: root.modelData.source.positionSupported
                 implicitHeight: 12
                 Layout.fillWidth: true
                 Layout.topMargin: 4
-                enabled: root.modelData.canSeek
+                enabled: root.modelData.source.canSeek
 
                 from: 0
-                to: root.modelData.length
+                to: root.modelData.source.length
                 stepSize: 1
 
-                value: root.modelData.position
-                onMoved: if (root.modelData.canSeek) {
-                    root.modelData.position = value;
+                value: root.modelData.source.position
+                onMoved: if (root.modelData.source.canSeek) {
+                    root.modelData.source.position = value;
                 }
 
                 Behavior on value {
@@ -144,35 +145,35 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
                 IconButton {
-                    icon: root.modelData.shuffle ? "󰒝" : "󰒞"
-                    enabled: root.modelData.shuffleSupported
-                    onClicked: root.modelData.shuffle = !root.modelData.shuffle
+                    icon: root.modelData.source.shuffle ? "󰒝" : "󰒞"
+                    enabled: root.modelData.source.shuffleSupported
+                    onClicked: root.modelData.source.shuffle = !root.modelData.source.shuffle
                 }
                 IconButton {
                     icon: "󰒮"
-                    enabled: root.modelData.canGoPrevious
-                    onClicked: root.modelData.previous()
+                    enabled: root.modelData.source.canGoPrevious
+                    onClicked: root.modelData.source.previous()
                 }
                 IconButton {
-                    icon: root.modelData.playbackState === MprisPlaybackState.Playing ? "" : ""
-                    enabled: root.modelData.canTogglePlaying
-                    onClicked: root.modelData.togglePlaying()
+                    icon: root.modelData.source.playbackState === MprisPlaybackState.Playing ? "" : ""
+                    enabled: root.modelData.source.canTogglePlaying
+                    onClicked: root.modelData.source.togglePlaying()
                 }
                 IconButton {
                     icon: "󰒭"
-                    enabled: root.modelData.canGoNext
-                    onClicked: root.modelData.next()
+                    enabled: root.modelData.source.canGoNext
+                    onClicked: root.modelData.source.next()
                 }
                 IconButton {
-                    icon: root.modelData.loopState === MprisLoopState.Track ? "󰑘" : root.modelData.loopState === MprisLoopState.Playlist ? "󰑖" : "󰑗"
-                    enabled: root.modelData.loopSupported
+                    icon: root.modelData.source.loopState === MprisLoopState.Track ? "󰑘" : root.modelData.source.loopState === MprisLoopState.Playlist ? "󰑖" : "󰑗"
+                    enabled: root.modelData.source.loopSupported
                     onClicked: {
-                        if (root.modelData.loopState === MprisLoopState.None)
-                            root.modelData.loopState = MprisLoopState.Track;
-                        else if (root.modelData.loopState === MprisLoopState.Track)
-                            root.modelData.loopState = MprisLoopState.Playlist;
+                        if (root.modelData.source.loopState === MprisLoopState.None)
+                            root.modelData.source.loopState = MprisLoopState.Track;
+                        else if (root.modelData.source.loopState === MprisLoopState.Track)
+                            root.modelData.source.loopState = MprisLoopState.Playlist;
                         else
-                            root.modelData.loopState = MprisLoopState.None;
+                            root.modelData.source.loopState = MprisLoopState.None;
                     }
                 }
             }

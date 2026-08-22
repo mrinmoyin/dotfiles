@@ -14,13 +14,8 @@ Item {
 
     readonly property bool active: ShellState.mediaplayer
 
-    onActiveChanged: {
-        if (active) {
-            inAnimation.start();
-            playersListLoader.item.currentIndex = MprisService.playerIndex;
-        } else
-            outAnimation.start();
-    }
+    onActiveChanged: if (active)
+        inAnimation.start()
 
     PropertyAnimation {
         id: inAnimation
@@ -30,7 +25,6 @@ Item {
         to: 320
         duration: Config.appearence.animationDuration || 500
         easing.type: Easing.InOutCirc
-        // easing.bezierCurve: [0.85, 0, 0.15, 1]
     }
     PropertyAnimation {
         id: outAnimation
@@ -40,7 +34,6 @@ Item {
         to: 0
         duration: Config.appearence.animationDuration || 500
         easing.type: Easing.InOutCirc
-        // easing.bezierCurve: [0.85, 0, 0.15, 1]
         onFinished: root.close()
     }
 
@@ -160,7 +153,7 @@ Item {
 
         Loader {
             id: playersListLoader
-            active: ShellState.mediaplayer
+            active: root.active
             anchors.fill: parent
 
             sourceComponent: Component {

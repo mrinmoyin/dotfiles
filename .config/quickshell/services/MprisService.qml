@@ -24,12 +24,19 @@ Singleton {
         return result;
     }
 
-    readonly property list<Player> activePlayers: players.filter(plyr => plyr.source.isPlaying === true)
+    // readonly property list<Player> activePlayers: players.filter(plyr => plyr.source.isPlaying === true)
     readonly property Player player: players.find(plyr => plyr.source.isPlaying === true) || players[lastPlayerIndex] || players[0]
 
     readonly property int playerIndex: players.indexOf(player)
     property int lastPlayerIndex: 0
 
-    onActivePlayersChanged: if (activePlayers[0])
-        lastPlayerIndex = players.indexOf(activePlayers[0])
+    onPlayerChanged: {
+        if (player !== undefined)
+            lastPlayerIndex = players.indexOf(player);
+    }
+    // onActivePlayersChanged: {
+    //     console.log(activePlayers.length, activePlayers[activePlayers.length - 1].source.trackTitle);
+    //     if (activePlayers !== undefined)
+    //         lastPlayerIndex = players.indexOf(activePlayers[0]);
+    // }
 }

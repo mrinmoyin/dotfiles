@@ -9,6 +9,7 @@ Item {
     id: root
     implicitWidth: Math.min(Quickshell.screens[0].width / 3, 540)
     implicitHeight: 24
+    visible: player !== undefined
 
     property Player player: MprisService.player
 
