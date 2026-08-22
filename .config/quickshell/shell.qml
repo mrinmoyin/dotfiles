@@ -6,6 +6,7 @@ import "./modules/osd"
 import "./modules/wallpaperselector"
 import "./modules/logout"
 import "./modules/mpd"
+import "./modules/bar"
 import "./modules/launcher"
 import "./modules/clipboard"
 import "./modules/controlcenter"
@@ -33,23 +34,13 @@ ShellRoot {
         aboveWindows: false
     }
 
+    BarWindow {}
     ControlCenterWindow {}
     LauncherWindow {}
     ClipboardWindow {}
 
-    Loader {
-        active: ShellState.osn
-        sourceComponent: Component {
-            NotificationWindow {}
-        }
-    }
-
-    Loader {
-        active: ShellState.osd
-        sourceComponent: Component {
-            OsdWindow {}
-        }
-    }
+    OsdWindow {}
+    NotificationWindow {}
 
     Loader {
         active: ShellState.help
@@ -73,38 +64,6 @@ ShellRoot {
         active: ShellState.mpd
         sourceComponent: Component {
             MpdWindow {}
-        }
-    }
-
-    PanelWindow {
-        anchors {
-            top: true
-            left: true
-            right: true
-            bottom: true
-        }
-        exclusionMode: ExclusionMode.Ignore
-        aboveWindows: ShellState.mediaplayer
-        focusable: true
-
-        color: "transparent"
-
-        screen: Quickshell.screens[0]
-
-        function close(): void {
-            aboveWindows = false;
-        }
-
-        Bar {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-        }
-
-        MediaPlayer {
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 34
         }
     }
 }

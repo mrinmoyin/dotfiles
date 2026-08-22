@@ -10,10 +10,9 @@ import "../../config"
 
 PanelWindow {
     id: root
+    visible: ShellState.osd
 
-    readonly property bool active: ShellState.osd
-
-    onActiveChanged: if (active)
+    onVisibleChanged: if (visible)
         inAnimation.start()
 
     anchors {
@@ -30,6 +29,7 @@ PanelWindow {
 
     Item {
         id: scope
+        clip: true
 
         anchors {
             top: parent.top
@@ -62,20 +62,22 @@ PanelWindow {
 
         HoverHandler {
             id: hoverHandler
-            onHoveredChanged: {
-                if (hovered)
-                    closeTimer.stop();
-                else if (root.active)
-                    closeTimer.restart();
-            }
+            enabled: root.visible
+            // onHoveredChanged: {
+            //     if (hovered)
+            //         closeTimer.stop();
+            //     else
+            //         closeTimer.restart();
+            // }
         }
 
         Timer {
             id: closeTimer
-            running: root.active
+            running: root.visible && !hoverHandler.hovered
             interval: 2000
-            onTriggered: if (!hoverHandler.hovered)
-                outAnimation.start()
+            // onTriggered: if (!hoverHandler.hovered)
+            //     outAnimation.start()
+            onTriggered: outAnimation.start()
         }
 
         MultiEffect {
@@ -167,7 +169,6 @@ PanelWindow {
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                // left: parent.left
                 right: parent.right
 
                 topMargin: 36
@@ -175,83 +176,6 @@ PanelWindow {
                 rightMargin: 16
                 bottomMargin: 36
             }
-
-            // Flickable {
-            //     visible: AudioService.applications.length > 0
-            //     implicitWidth: Math.min(applicationsContent.width, 320)
-            //     Layout.fillHeight: true
-            //     // contentWidth: applicationsContent.width
-            //     // contentHeight: parent.height
-            //     // contentHeight: 300
-            //     flickableDirection: Flickable.HorizontalFlick
-            //     clip: true
-            //
-            //     RowLayout {
-            //         id: applicationsContent
-            //         spacing: 8
-            //         // implicitHeight: 300
-            //
-            //         Repeater {
-            //             model: AudioService.applications
-            //
-            //             ColumnLayout {
-            //                 id: card
-            //                 implicitWidth: 40
-            //                 // implicitHeight: parent.height
-            //                 implicitHeight: 200
-            //                 // Layout.fillHeight: true
-            //                 spacing: 8
-            //                 // Rectangle {
-            //                 //     anchors.fill: parent
-            //                 //     color: "#0fffffff"
-            //                 // }
-            //
-            //                 required property PwNode modelData
-            //
-            //                 Rectangle {
-            //                     color: "#0fffffff"
-            //                     implicitWidth: parent.width
-            //                     implicitHeight: width
-            //                     radius: 20
-            //
-            //                     Text {
-            //                         anchors.centerIn: parent
-            //                         text: card.modelData.name.slice(0, 1).toUpperCase()
-            //                         font.family: "Inter"
-            //                         font.pixelSize: 20
-            //                         font.weight: Font.DemiBold
-            //                         color: "#ffffff"
-            //                     }
-            //                 }
-            //
-            //                 VerticalSlider {
-            //                     visible: card.modelData.isSink
-            //                     implicitWidth: parent.width
-            //                     Layout.fillHeight: true
-            //                     icon: "󰕾"
-            //
-            //                     from: 0
-            //                     to: 1
-            //                     stepSize: 0.01
-            //                     value: card.modelData.audio.volume
-            //                     onMoved: card.modelData.audio.volume = value
-            //                 }
-            //                 // VerticalSlider {
-            //                 //     visible: !card.modelData.isSink
-            //                 //     Layout.fillHeight: true
-            //                 //     implicitWidth: parent.width
-            //                 //     icon: ""
-            //                 //
-            //                 //     from: 0
-            //                 //     to: 1
-            //                 //     stepSize: 0.01
-            //                 //     value: card.modelData.audio.volume
-            //                 //     onMoved: card.modelData.audio.volume = value
-            //                 // }
-            //             }
-            //         }
-            //     }
-            // }
 
             RowLayout {
                 id: applicationsContent
@@ -297,7 +221,6 @@ PanelWindow {
                         }
 
                         VerticalSlider {
-                            // visible: card.modelData.isSink
                             implicitWidth: parent.width
                             Layout.fillHeight: true
                             icon: "󰕾"
@@ -308,18 +231,6 @@ PanelWindow {
                             value: card.modelData.audio.volume
                             onMoved: card.modelData.audio.volume = value
                         }
-                        // VerticalSlider {
-                        //     visible: !card.modelData.isSink
-                        //     Layout.fillHeight: true
-                        //     implicitWidth: parent.width
-                        //     icon: ""
-                        //
-                        //     from: 0
-                        //     to: 1
-                        //     stepSize: 0.01
-                        //     value: card.modelData.audio.volume
-                        //     onMoved: card.modelData.audio.volume = value
-                        // }
                     }
                 }
             }

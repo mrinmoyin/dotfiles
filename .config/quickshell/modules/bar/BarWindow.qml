@@ -1,68 +1,111 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
-import "../../components"
+import QtQuick.Effects
+import QtQuick.Shapes
 import "../../services"
+import "../mediaplayer"
 
 PanelWindow {
-    id: root
     anchors {
         top: true
         left: true
         right: true
+        bottom: true
     }
-    implicitHeight: 34
-    // color: "#01000000"
+    exclusionMode: ExclusionMode.Ignore
+    aboveWindows: ShellState.mediaplayer
+    focusable: true
+
     color: "transparent"
+
     screen: Quickshell.screens[0]
 
-    readonly property int gapIn: 8
-    readonly property int gapOut: 4
+    Item {
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-    // Left
-    RowLayout {
-        anchors {
-            left: parent.left
-            leftMargin: root.gapOut
-            verticalCenter: parent.verticalCenter
-        }
-        spacing: root.gapIn
+        height: 54
 
-        BarButton {
-            icon: "󰣇"
-            onClicked: ShellState.launcher = !ShellState.launcher
+        MultiEffect {
+            id: panel
+            source: background
+            anchors.fill: background
+            maskEnabled: true
+            maskSource: mask
+
+            // layer.smooth: true
+
+            maskThresholdMin: 0.5
+            maskSpreadAtMin: 1.0
         }
-        SystemTray {}
+
+        Rectangle {
+            id: background
+            anchors.fill: parent
+            visible: false
+            // smooth: true
+            color: "#01000000"
+        }
+
+        Shape {
+            id: mask
+            anchors.fill: background
+            antialiasing: true
+
+            visible: false
+            layer.enabled: true
+
+            preferredRendererType: Shape.CurveRenderer
+
+            ShapePath {
+                strokeColor: "transparent"
+
+                startX: 0
+                startY: 0
+
+                PathLine {
+                    x: 0
+                    y: mask.height
+                }
+                PathArc {
+                    radiusX: 20
+                    radiusY: 20
+                    x: 20
+                    y: mask.height - 20
+                }
+
+                PathLine {
+                    x: mask.width - 20
+                    y: mask.height - 20
+                }
+                PathArc {
+                    radiusX: 20
+                    radiusY: 20
+                    x: mask.width
+                    y: mask.height
+                }
+                PathLine {
+                    x: mask.width
+                    y: 0
+                }
+                PathLine {
+                    x: 0
+                    y: 0
+                }
+            }
+        }
+
+        BarContent {
+            anchors.top: background.top
+            anchors.left: background.left
+            anchors.right: background.right
+        }
     }
 
-    // Center
-    RowLayout {
-        anchors {
-            centerIn: parent
-            verticalCenter: parent.verticalCenter
-            leftMargin: root.gapOut
-            rightMargin: root.gapOut
-        }
-        spacing: root.gapIn
-
-        Mpris {}
-    }
-
-    // Right
-    RowLayout {
-        anchors {
-            right: parent.right
-            verticalCenter: parent.verticalCenter
-            rightMargin: root.gapOut
-        }
-        spacing: root.gapIn
-
-        Network {}
-        SystemUsage {}
-        Clock {}
-        BarButton {
-            icon: "󰒓"
-            onClicked: ShellState.controlcenter = !ShellState.controlcenter
-        }
+    MediaPlayerWindow {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 34
     }
 }
