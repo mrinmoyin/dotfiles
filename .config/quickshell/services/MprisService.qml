@@ -16,7 +16,9 @@ Singleton {
     readonly property list<Player> players: {
         let result = [];
 
-        for (let i = 0; i < Mpris.players.rowCount(); i++) {
+        console.log(Mpris.players.values.length);
+        // for (let i = 0; i < Mpris.players.rowCount(); i++) {
+        for (let i = 0; i < Mpris.players.values.length; i++) {
             result.push(wrapper.createObject(root, {
                 source: Mpris.players.values[i]
             }));

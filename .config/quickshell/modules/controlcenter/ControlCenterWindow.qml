@@ -5,6 +5,7 @@ import QtQuick.Effects
 import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Networking
 import Quickshell.Services.UPower
 import "../../components"
 import "../../services"
@@ -261,6 +262,9 @@ PanelWindow {
                         QuickActionButton {
                             icon: ""
                             label: "Wifi"
+                            enabled: Networking.wifiHardwareEnabled
+                            active: Networking.wifiEnabled
+                            onClicked: Networking.wifiEnabled = !Networking.wifiEnabled
                         }
 
                         QuickActionButton {

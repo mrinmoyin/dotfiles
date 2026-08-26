@@ -1,4 +1,5 @@
 import QtQuick
+
 import Quickshell
 import "./modules/notification"
 import "./modules/help"

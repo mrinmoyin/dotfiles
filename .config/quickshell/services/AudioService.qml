@@ -10,7 +10,7 @@ Singleton {
     readonly property PwNode sink: Pipewire.defaultAudioSink
     readonly property PwNode source: Pipewire.defaultAudioSource
 
-    property real sinkVolume: sink.audio.volume
+    property real sinkVolume: sink.audio.volume || 0
     onSinkVolumeChanged: if (!ShellState.osd && !ShellState.controlcenter)
         ShellState.osd = true
 

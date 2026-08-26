@@ -12,8 +12,8 @@ QtObject {
     property ListModel lyrics: ListModel {}
     property int currentLyricsIndex: 0
     property bool loadingLyrics: lyricsProc.running
-    property string positionString: "00:00"
-    property string lengthString: formatTime(source.length)
+    readonly property string positionString: formatTime(source.position)
+    readonly property string lengthString: formatTime(source.length)
 
     onLyricsChanged: {
         syncLyrics();
@@ -90,13 +90,19 @@ QtObject {
 
         stdout: StdioCollector {
             onStreamFinished: {
+                // console.log(text);
+                if (text === "") {
+                    console.warn(root.source.identity, "Network error");
+                    root.lyricsAvailable = false;
+                    return;
+                }
                 const data = JSON.parse(text);
                 if (!data.syncedLyrics) {
                     console.warn(root.source.identity, "Unalbe to fetch lyrics", root.lyricsProc.command);
                     root.lyricsAvailable = false;
                     return;
                 }
-                root.lyricsAvailable = true;
+
                 const lines = data.syncedLyrics.split("\n");
 
                 root.lyrics.append({
@@ -111,6 +117,7 @@ QtObject {
                         text: parts[1]
                     });
                 }
+                root.lyricsAvailable = true;
                 root.lyricsChanged();
             }
         }
@@ -121,7 +128,7 @@ QtObject {
         repeat: true
         interval: 1000
         onTriggered: {
-            root.positionString = root.formatTime(root.source.position);
+            // root.positionString = root.formatTime(root.source.position);
             root.source.positionChanged();
             if (root.source.position < 1 && root.lyricsEnabled && root.lyricsAvailable)
                 root.syncLyrics();

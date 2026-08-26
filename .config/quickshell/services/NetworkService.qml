@@ -3,18 +3,19 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Networking
 
 Singleton {
     id: root
 
-    property string interfaceName: "enp0s20u1"
-
+    readonly property list<NetworkDevice> devices: Networking.devices.values
+    readonly property list<NetworkDevice> activeDevices: devices.filter(item => item.connected === true)
+    readonly property NetworkDevice device: activeDevices[0]
     readonly property real downBytesSec: rxBytes
     readonly property real upBytesSec: txBytes
-    readonly property list<NetworkDevice> devices: Networking.devices.values
-    onDevicesChanged: console.log("networks", JSON.stringify(devices))
+    onDeviceChanged: console.log("network device changed", device.name)
+    readonly property bool connected: device.connected
+    onConnectedChanged: console.log("network state changed", connected)
 
     property int rxBytes: 0
     property int txBytes: 0
@@ -27,16 +28,16 @@ Singleton {
 
     FileView {
         id: rxFile
-        path: "/sys/class/net/" + root.interfaceName + "/statistics/rx_bytes"
+        path: "/sys/class/net/" + root.device.name + "/statistics/rx_bytes"
     }
 
     FileView {
         id: txFile
-        path: "/sys/class/net/" + root.interfaceName + "/statistics/tx_bytes"
+        path: "/sys/class/net/" + root.device.name + "/statistics/tx_bytes"
     }
 
     Timer {
-        running: true
+        running: rxFile.loaded && txFile.loaded
         interval: 1000
         repeat: true
         triggeredOnStart: false

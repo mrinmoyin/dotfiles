@@ -246,12 +246,13 @@ RowLayout {
                 root.modelData.source.seek(value);
                 // root.modelData.source.position = value;
             }
+            // onValueChanged: console.log("progress", value)
 
-            Behavior on value {
-                NumberAnimation {
-                    duration: 1000
-                }
-            }
+            // Behavior on value {
+            //     NumberAnimation {
+            //         duration: 1000
+            //     }
+            // }
         }
         RowLayout {
             Text {

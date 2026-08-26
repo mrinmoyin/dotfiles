@@ -7,14 +7,15 @@ import "../../config"
 
 Item {
     id: root
+    visible: ShellState.mediaplayer
 
     width: 640
     height: 0
 
-    readonly property bool active: ShellState.mediaplayer
-
-    onActiveChanged: if (active)
-        inAnimation.start()
+    onVisibleChanged: if (visible) {
+        inAnimation.start();
+        // playersList.currentIndex = MprisService.playerIndex;
+    }
 
     PropertyAnimation {
         id: inAnimation
@@ -150,26 +151,30 @@ Item {
         }
         clip: true
 
-        Loader {
-            id: playersListLoader
-            active: root.active
+        // Loader {
+        //     id: playersListLoader
+        //     active: root.visible
+        //     anchors.fill: parent
+        //     // asynchronous: true
+        //     // visible: status == Loader.Ready
+        //     onLoaded: item.currentIndex = MprisService.playerIndex
+        //
+        //     sourceComponent: Component {
+        SwipeView {
+            id: playersList
+            visible: root.visible && MprisService.players.length > 0
             anchors.fill: parent
+            spacing: 8
+            // currentIndex: MprisService.playerIndex
+            // onCurrentIndexChanged: console.log("currentIndex", currentIndex)
 
-            sourceComponent: Component {
-                SwipeView {
-                    id: playersList
-                    visible: MprisService.players.length > 0
-                    anchors.fill: parent
-                    spacing: 8
-                    currentIndex: MprisService.playerIndex
+            Repeater {
+                model: MprisService.players
 
-                    Repeater {
-                        model: MprisService.players
-
-                        MediaPlayerCard {}
-                    }
-                }
+                MediaPlayerCard {}
             }
         }
+        //     }
+        // }
     }
 }

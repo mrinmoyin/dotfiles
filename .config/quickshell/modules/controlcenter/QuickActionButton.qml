@@ -8,7 +8,9 @@ Rectangle {
     implicitHeight: 60
     color: "#0fffffff"
     radius: 20
+    opacity: enabled ? 1 : 0.75
 
+    property bool active: false
     required property string icon
     required property string label
     property string desc: ""
@@ -29,7 +31,7 @@ Rectangle {
         Rectangle {
             Layout.fillHeight: true
             Layout.preferredWidth: height
-            color: "#0fffffff"
+    color: root.active ? "#E3701B" : "#0fffffff"
             radius: 20
 
             Text {
