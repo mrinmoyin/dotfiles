@@ -386,6 +386,10 @@ PanelWindow {
                         }
                     }
 
+                    // Loader {
+                    //     active: root.active
+                    //     Layout.fillWidth: true
+                    //     sourceComponent: Component {
                     ColumnLayout {
                         id: notificationsContainer
                         Layout.fillWidth: true
@@ -409,23 +413,19 @@ PanelWindow {
                             }
                         }
 
-                        Loader {
-                            active: root.active
-                            Layout.fillWidth: true
-                            sourceComponent: Component {
-                                Repeater {
-                                    model: NotificationService.trackedNotificationsModel
-                                    // model: NotificationService.trackedNotifications
+                        Repeater {
+                            model: NotificationService.trackedNotificationsModel
+                            // model: NotificationService.trackedNotifications
 
-                                    NotificationCard {
-                                        onDismiss: {
-                                            NotificationService.trackedNotificationsModel.remove(index);
-                                            NotificationService.dismiss(modelData.id);
-                                        }
-                                    }
+                            NotificationCard {
+                                onDismiss: {
+                                    NotificationService.trackedNotificationsModel.remove(index);
+                                    NotificationService.dismiss(modelData.id);
                                 }
                             }
                         }
+                        // }
+                        //     }
                     }
                 }
             }

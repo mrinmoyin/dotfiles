@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
@@ -46,23 +47,6 @@ PanelWindow {
         Keys.onRightPressed: if (root.selectedIndex < 3)
             root.selectedIndex = root.selectedIndex + 1
 
-        HoverHandler {
-            id: hoverHandler
-            onHoveredChanged: {
-                if (hovered)
-                    closeTimer.stop();
-                else if (root.visible)
-                    closeTimer.restart();
-            }
-        }
-
-        Timer {
-            id: closeTimer
-            interval: 500
-            onTriggered: if (!hoverHandler.hovered)
-                ShellState.wallpaper = false
-        }
-
         Rectangle {
             id: panel
             anchors.fill: parent
@@ -71,54 +55,80 @@ PanelWindow {
             color: "#0fffffff"
             clip: true
 
-            Flickable {
+            ScrollView {
                 id: wallpaperList
                 anchors.fill: parent
                 anchors.margins: 20
 
                 GridLayout {
+                    anchors.fill: parent
                     columns: 3
                     rowSpacing: 20
                     columnSpacing: 20
+                    uniformCellWidths: true
+                    uniformCellHeights: true
 
                     Repeater {
                         // model: WallpaperService.wallpapers
                         model: ListModel {
                             ListElement {
-                                uri: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
                             }
                             ListElement {
-                                uri: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
                             }
                             ListElement {
-                                uri: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                                modelData: "/home/mrinmoy/Documents/HB6Qleya4AA-r9k.jpg"
                             }
                             ListElement {
-                                uri: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
+                            }
+                            ListElement {
+                                modelData: "/home/mrinmoy/Documents/can-anyone-please-give-me-similar-wallpaper-for-laptop-and-v0-motbre9rx6ag1.webp"
                             }
                         }
 
                         delegate: Item {
                             id: card
-                            required property string uri
+                            required property string modelData
                             required property int index
                             // Layout.fillWidth: true
                             implicitWidth: 400
                             implicitHeight: 225
-                            // Rectangle {
-                            //     anchors.fill: parent
-                            //     color: "#0fffffff"
-                            // }
                             scale: index === root.selectedIndex ? 1.05 : 1
+                            Layout.rowSpan: image.sourceSize.width < image.sourceSize.height ? 2 : 1
                             Behavior on scale {
                                 NumberAnimation {
                                     duration: 180
                                 }
                             }
                             Image {
+                                id: image
                                 anchors.fill: parent
-                                source: uri
+                                source: modelData
                                 fillMode: Image.PreserveAspectCrop
+                                cache: false
                             }
                         }
                     }
